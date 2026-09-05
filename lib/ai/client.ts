@@ -1,24 +1,29 @@
 /**
- * Thin server-side OpenAI wrapper (docs/architecture.md #9, docs/rules.md #11).
+ * Thin server-side Gemini wrapper (docs/architecture.md #9, docs/rules.md #11).
  *
- * - This module reads `OPENAI_API_KEY` and must only ever be imported from
+ * - This module reads `GEMINI_API_KEY` and must only ever be imported from
  *   Server Actions/Components (e.g. `app/actions/ai.ts`), never from a
  *   client component — the same convention already used for `lib/db`.
  *   (Not using the `server-only` package here to avoid adding a dependency
  *   per docs/rules.md #17; this file has no client-safe exports.)
- * - `OPENAI_API_KEY` never leaves this module.
+ * - `GEMINI_API_KEY` never leaves this module.
  * - Callers get a single `AiServiceError` for every failure mode (missing
  *   key, network failure, bad status, unparsable output) so that
  *   `app/actions/ai.ts` can degrade gracefully per docs/PRD.md #8 without
  *   needing to know why the AI call failed.
+ *
+ * Provider decision: OpenAI → Gemini (docs/memory.md, docs/rules.md #20).
  */
 
-const OPENAI_CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions";
+// Non-versioned alias, per Gemini's model docs — always resolves to the
+// current flash model instead of a dated version string that eventually
+// gets retired (which is what a 404 here usually means). Pin to a dated
+// model only if reproducible output across upgrades becomes a requirement.
+const DEFAULT_MODEL = "gemini-flash-latest";
 
-// Small, inexpensive model — sufficient for short structured analysis of
-// a single dev log or a handful of recent tasks/logs. Revisit if output
-// quality becomes a problem (docs/memory.md).
-const DEFAULT_MODEL = "gpt-4o-mini";
+function generateContentUrl(model: string): string {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+}
 
 export class AiServiceError extends Error {
   constructor(message: string, options?: { cause?: unknown }) {
@@ -40,7 +45,7 @@ export async function callAiForJson(params: {
   system: string;
   user: string;
 }): Promise<unknown> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new AiServiceError(
       "AI features are not configured on this server."
@@ -49,20 +54,28 @@ export async function callAiForJson(params: {
 
   let response: Response;
   try {
-    response = await fetch(OPENAI_CHAT_COMPLETIONS_URL, {
+    response = await fetch(generateContentUrl(DEFAULT_MODEL), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
-        model: DEFAULT_MODEL,
-        temperature: 0.4,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: params.system },
-          { role: "user", content: params.user },
+        // Gemini has no separate "system" role in a chat array the way
+        // OpenAI does — systemInstruction is a dedicated top-level field.
+        systemInstruction: {
+          parts: [{ text: params.system }],
+        },
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: params.user }],
+          },
         ],
+        generationConfig: {
+          temperature: 0.4,
+          responseMimeType: "application/json",
+        },
       }),
     });
   } catch (error) {
@@ -74,6 +87,14 @@ export async function callAiForJson(params: {
   if (!response.ok) {
     // Never surface the response body — it may contain provider-side
     // diagnostic detail that shouldn't reach the client (docs/rules.md #12).
+    // A 404 here specifically means the model name/endpoint isn't valid
+    // for this API key (e.g. a dated model id that's since been retired) —
+    // logged server-side so it's diagnosable without exposing it to the UI.
+    if (response.status === 404) {
+      console.error(
+        `[lib/ai/client] Gemini returned 404 for model "${DEFAULT_MODEL}" — the model id may be retired. Check https://ai.google.dev/gemini-api/docs/models for current model names.`
+      );
+    }
     throw new AiServiceError(
       `The AI service returned an error (status ${response.status}).`
     );
@@ -89,8 +110,12 @@ export async function callAiForJson(params: {
   }
 
   const content = (
-    payload as { choices?: Array<{ message?: { content?: unknown } }> }
-  )?.choices?.[0]?.message?.content;
+    payload as {
+      candidates?: Array<{
+        content?: { parts?: Array<{ text?: unknown }> };
+      }>;
+    }
+  )?.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (typeof content !== "string" || content.trim().length === 0) {
     throw new AiServiceError("The AI service returned an empty response.");

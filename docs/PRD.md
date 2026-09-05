@@ -236,7 +236,7 @@ In-app feedback such as success/error toasts may be used.
 
 ## 16. Integrations
 
-Required: - Clerk - PostgreSQL - OpenAI API
+Required: - Clerk - PostgreSQL - Gemini API
 
 Deployment: - Vercel
 

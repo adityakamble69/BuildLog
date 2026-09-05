@@ -22,7 +22,8 @@ Phase 1 through Phase 6 complete. Ready for Phase 7.
 -   [x] Core user journey defined
 -   [x] Clerk selected for authentication
 -   [x] PostgreSQL selected for persistence
--   [x] OpenAI selected for AI functionality
+-   [x] Gemini selected for AI functionality (originally OpenAI; see
+        "AI Provider Change" in the Documentation Change Log)
 -   [x] Next.js + TypeScript selected for application
 -   [x] Initial architecture defined
 -   [x] Initial database model defined
@@ -86,9 +87,9 @@ Phase 1 was divided into two parts for clarity:
         cleanly (no error output); table creation not independently
         re-verified in this session, so leaving this open until
         confirmed.
--   [x] Replace placeholder AI-insight content with real OpenAI output
+-   [x] Replace placeholder AI-insight content with real Gemini output
         (Phase 6)
--   [ ] Set a real `OPENAI_API_KEY` in `.env.local` to exercise AI
+-   [ ] Set a real `GEMINI_API_KEY` in `.env.local` to exercise AI
         features locally (calls fail gracefully without one)
 
 ## Completed Features (Phase 5 additions)
@@ -136,13 +137,19 @@ Phase 1 was divided into two parts for clarity:
 
 ## Completed Features (Phase 6 additions)
 
--   [x] `lib/ai/client.ts`: server-only OpenAI wrapper
-        (`callAiForJson()`) — reads `OPENAI_API_KEY`, calls the Chat
-        Completions API with `response_format: json_object`, and throws
-        a single `AiServiceError` for every failure mode (missing key,
-        network failure, non-2xx status, empty/unparsable content). Uses
-        raw `fetch` rather than the `openai` SDK per docs/rules.md #17
-        (no dependency added).
+-   [x] `lib/ai/client.ts`: server-only Gemini wrapper
+        (`callAiForJson()`) — reads `GEMINI_API_KEY`, calls
+        Gemini's `generateContent` endpoint with
+        `generationConfig.responseMimeType: "application/json"`, and
+        throws a single `AiServiceError` for every failure mode (missing
+        key, network failure, non-2xx status, empty/unparsable content).
+        Uses raw `fetch` rather than an SDK per docs/rules.md #17 (no
+        dependency added). Originally implemented against OpenAI's Chat
+        Completions API; switched to Gemini — see "AI Provider Change"
+        below. The rest of the AI code (`log-analysis.ts`,
+        `project-report.ts`, `app/actions/ai.ts`, `components/ai/`)
+        was unaffected by the swap, since `callAiForJson()` is the only
+        module that talks to the provider.
 -   [x] `lib/ai/log-analysis.ts` / `lib/ai/project-report.ts`: prompt
         construction + calls into `callAiForJson()`, each returning a
         `zod`-validated, normalized result (`lib/validations/ai.ts`).
@@ -295,8 +302,9 @@ Drizzle ORM is selected for typed database access and migrations.
 
 ### AI
 
-OpenAI is used server-side for contextual development-log analysis and
-project reports.
+Gemini is used server-side for contextual development-log analysis and
+project reports. (Originally OpenAI; switched — see "AI Provider Change"
+in the Documentation Change Log below.)
 
 ### Architecture
 
@@ -376,6 +384,44 @@ Not deployed.
     `<Show when="signed-in">` / `<Show when="signed-out">`.
 -   `ClerkProvider` moved from wrapping `<html>` to living inside
     `<body>` in `app/layout.tsx`, per the Core 3 Next.js requirement.
+
+### AI Provider Change --- OpenAI to Gemini
+
+-   Switched the AI provider from OpenAI to Gemini (docs/rules.md #20:
+    architecture change recorded here before implementation).
+-   Reason: provider preference for API key/billing setup; no
+    functional gap in OpenAI drove the change.
+-   `lib/ai/client.ts` (`callAiForJson()`) now calls Gemini's
+    `generateContent` REST endpoint
+    (`https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`)
+    with an `x-goog-api-key` header, instead of OpenAI's Chat
+    Completions endpoint with a `Bearer` token. Structured JSON output
+    is requested via `generationConfig.responseMimeType: "application/json"`
+    (Gemini's equivalent of OpenAI's `response_format: json_object`).
+    Default model: `gemini-flash-latest` (Gemini's non-versioned alias
+    for the current flash model — a dated model id like
+    `gemini-2.5-flash` was tried first and returned a 404 once Google
+    retired that specific version; the `-latest` alias avoids repeating
+    this whenever Google rotates model versions). A 404 from Gemini is
+    logged server-side with a pointer to
+    https://ai.google.dev/gemini-api/docs/models for diagnosing a future
+    model-name issue, without leaking that detail to the UI.
+-   Gemini has no separate "system" chat role — the system prompt is
+    now sent via the dedicated `systemInstruction` field instead of a
+    `system`-role message.
+-   `callAiForJson()`'s signature, return type, and `AiServiceError`
+    contract are unchanged, so `lib/ai/log-analysis.ts`,
+    `lib/ai/project-report.ts`, `app/actions/ai.ts`, and
+    `components/ai/*` required no changes.
+-   Environment variable renamed: `OPENAI_API_KEY` → `GEMINI_API_KEY`
+    in `.env.example` and `docs/rules.md` #11. Existing `.env.local`
+    files need the new variable name set to a Gemini API key (Google
+    AI Studio) instead of an OpenAI key.
+-   Updated `docs/architecture.md` (#1, #10), `docs/PRD.md` (#9),
+    `docs/rules.md` (#11), and `docs/phases.md` (Phase 6) to say
+    Gemini instead of OpenAI. No schema or scope change — `ai_insights`
+    storage, validation (`lib/validations/ai.ts`), and the
+    log-analysis/report feature set are unaffected.
 
 ## Source-of-Truth Rule
 

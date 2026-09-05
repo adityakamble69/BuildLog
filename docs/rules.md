@@ -117,7 +117,7 @@ Do not scatter domain logic across unrelated directories.
 ## 11. Environment Variables
 
 Expected variables will include values such as: - Clerk publishable
-key - Clerk secret key - Database URL - OpenAI API key
+key - Clerk secret key - Database URL - Gemini API key
 
 Only public values may be exposed through client-safe environment
 variables.

@@ -31,7 +31,7 @@ External AI requests:
 ``` text
 BuildLog Server
       ↓
-OpenAI API
+Gemini API
       ↓
 AI result
       ↓
@@ -189,7 +189,7 @@ Ownership check
  ↓
 AI service
  ↓
-OpenAI
+Gemini
  ↓
 Structured result
  ↓
@@ -201,7 +201,7 @@ UI
 ## 10. External Services
 
 -   Clerk --- authentication and identity
--   OpenAI --- AI analysis
+-   Gemini --- AI analysis
 -   Supabase (PostgreSQL) --- database, accessed only via Drizzle ORM
     over Postgres --- no Supabase Auth/Storage/Realtime in MVP scope
 -   Vercel --- deployment

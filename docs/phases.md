@@ -217,7 +217,7 @@ Add useful AI analysis without expanding scope unnecessarily.
 
 ### Tasks
 
--   [x] Configure server-side OpenAI integration
+-   [x] Configure server-side Gemini integration
 -   [x] Create AI service
 -   [x] Implement development log analysis
 -   [x] Generate project report
