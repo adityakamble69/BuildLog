@@ -5,15 +5,15 @@
 
 ## Current Phase
 
-**Phase 2 --- UI Foundation (complete)**
+**Phase 3 --- Authentication (complete)**
 
 ## Current Task
 
-Begin Phase 3 --- Authentication.
+Begin Phase 4 --- Database + Projects.
 
 ## Project Status
 
-Phase 1 and Phase 2 complete. Ready for Phase 3.
+Phase 1, Phase 2, and Phase 3 complete. Ready for Phase 4.
 
 ## Completed Features
 
@@ -83,8 +83,27 @@ Phase 1 was divided into two parts for clarity:
         5432) in `.env.local`
 -   [ ] Run the generated migration against Supabase
         (`npx drizzle-kit migrate`)
--   [ ] Build real sign-in/sign-up routes (Phase 3)
 -   [ ] Replace placeholder dashboard content with real project data (Phase 4+)
+
+## Completed Features (Phase 3 additions)
+
+-   [x] `app/(auth)/layout.tsx`: shared centered chrome (logo only) for
+        auth routes
+-   [x] `app/(auth)/sign-in/[[...sign-in]]/page.tsx`: Clerk `<SignIn>`
+        catch-all route, styled to design tokens via `appearance.elements`
+-   [x] `app/(auth)/sign-up/[[...sign-up]]/page.tsx`: Clerk `<SignUp>`
+        catch-all route, styled the same way
+-   [x] `lib/auth/current-user.ts` extended with
+        `getCurrentUserDisplay()` (name/email/avatar) for UI greetings ---
+        display only, never used for authorization
+-   [x] Dashboard now greets the signed-in user by first name using
+        `getCurrentUserDisplay()`
+-   [x] Verified `proxy.ts` protection, `UserButton` sign-out, and
+        `requireUserId()`/`getCurrentUserId()` server identity already
+        satisfied the remaining Phase 3 tasks from Phase 1B/2
+-   [x] Verified production build succeeds (Turbopack) with the new
+        routes; the only build failure is the pre-existing sandbox
+        Google Fonts block noted below, unrelated to these changes
 
 ## Completed Features (Phase 2 additions)
 
@@ -162,6 +181,10 @@ Avoid unnecessary integrations during the event MVP.
 
 ## Recent Changes
 
+-   Design refresh across landing, dashboard, and auth (see
+    "Design Refresh" below).
+-   Completed Phase 3 --- Authentication: real sign-in/sign-up routes,
+    user display helper, dashboard greeting.
 -   Established BuildLog product direction.
 -   Defined MVP feature set.
 -   Defined system architecture.
@@ -224,3 +247,41 @@ Not deployed.
 If implementation and documentation disagree, stop and reconcile the
 documentation before making a significant architectural or schema
 change.
+
+## Design Refresh (visual pass, no scope/schema changes)
+
+The tokens in `design.md` (colors, type, radii, spacing) were already
+implemented correctly since Phase 2 and were **not** changed. This
+pass replaced generic layout defaults with choices grounded in the
+product itself:
+
+-   Landing hero: dropped the eyebrow pill + centered headline +
+    icon-card grid. Replaced with a left-aligned headline next to a
+    static `LogPanelPreview` (`components/marketing/log-panel-preview.tsx`)
+    showing realistic timestamped dev-log lines, a project status
+    badge, and a Ship Score readout with a progress bar --- the
+    product's own artifact stands in for a generic feature-icon grid.
+-   Feature section: replaced the 3-column card grid (identical
+    radius/shadow/icon-square on every item) with a hairline-divided
+    manifest-style list (label + description rows).
+-   `font-mono` (JetBrains Mono), defined in `design.md` but unused
+    until now, is applied to genuinely technical/machine-generated
+    values: log timestamps, the Ship Score number, and the live
+    project-status label. Sans (Inter) remains for human-authored
+    copy. This is now the intended rule for future UI: mono for
+    machine data, sans for authored text.
+-   `components/ui/card.tsx`: removed the default `shadow-sm`. Per
+    design.md #7, subtle shadows are for elevated elements (modals,
+    popovers) only --- inline cards are separated by border alone.
+-   `components/ui/empty-state.tsx`: icon wrapper changed from a
+    filled circle to a bordered square, consistent with the card
+    system instead of the generic filled-circle-icon default.
+-   `app/dashboard/page.tsx`: page heading now sits at the documented
+    H1 scale (32px) instead of H2 (24px).
+-   One deliberate motion moment: a blinking terminal caret in the
+    hero log panel only (`.animate-caret-blink` in `globals.css`,
+    respects `prefers-reduced-motion`). No other new animations were
+    added.
+-   No changes to auth pages' structure beyond what Phase 3 already
+    set up; they intentionally stay quiet so the hero remains the one
+    bold element on the site.

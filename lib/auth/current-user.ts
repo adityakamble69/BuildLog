@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 /**
  * Returns the authenticated Clerk user ID, or null when signed out.
@@ -21,4 +21,31 @@ export async function requireUserId(): Promise<string> {
     throw new Error("UNAUTHENTICATED");
   }
   return userId;
+}
+
+/** Minimal display info for greeting/labeling the signed-in user in the UI. */
+export interface CurrentUserDisplay {
+  id: string;
+  firstName: string | null;
+  fullName: string | null;
+  email: string | null;
+  imageUrl: string;
+}
+
+/**
+ * Returns display-safe info (name/email/avatar) for the authenticated user,
+ * or null when signed out. This is for UI presentation only — never use it
+ * as an authorization check; use `getCurrentUserId`/`requireUserId` for that.
+ */
+export async function getCurrentUserDisplay(): Promise<CurrentUserDisplay | null> {
+  const user = await currentUser();
+  if (!user) return null;
+
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    fullName: user.fullName,
+    email: user.primaryEmailAddress?.emailAddress ?? null,
+    imageUrl: user.imageUrl,
+  };
 }

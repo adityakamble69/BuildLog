@@ -92,13 +92,13 @@ Implement Clerk authentication and protected routes.
 
 ### Tasks
 
--   [ ] Configure Clerk
--   [ ] Build sign-in route
--   [ ] Build sign-up route
--   [ ] Protect dashboard
--   [ ] Display authenticated user
--   [ ] Implement sign-out
--   [ ] Verify server-side identity
+-   [x] Configure Clerk
+-   [x] Build sign-in route
+-   [x] Build sign-up route
+-   [x] Protect dashboard
+-   [x] Display authenticated user
+-   [x] Implement sign-out
+-   [x] Verify server-side identity
 
 ### Files/Modules
 
@@ -118,10 +118,10 @@ Only authenticated users can access private application areas.
 
 ### Completion Criteria
 
--   [ ] Sign-in works
--   [ ] Sign-up works
--   [ ] Protected routes work
--   [ ] Server can retrieve Clerk user ID
+-   [x] Sign-in works
+-   [x] Sign-up works
+-   [x] Protected routes work
+-   [x] Server can retrieve Clerk user ID
 
 ------------------------------------------------------------------------
 
