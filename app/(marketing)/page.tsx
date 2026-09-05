@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import {
   ClipboardList,
   BookText,
@@ -48,7 +49,9 @@ const FEATURES = [
   },
 ] as const;
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { userId } = await auth();
+
   return (
     <div className="w-full max-w-[99vw] 2xl:max-w-[1800px] mx-auto flex flex-col gap-14 py-1 sm:py-2">
       {/* Outer Drafting Canvas with Double Border filling the full screen */}
@@ -65,18 +68,29 @@ export default function LandingPage() {
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2.5">
-            <Link
-              href="/sign-in"
-              className="rounded border border-black bg-[#F5F2EB] px-3.5 py-1 text-xs font-semibold text-neutral-900 transition-colors hover:bg-black/5"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/sign-up"
-              className="rounded bg-black px-4 py-1 text-xs font-semibold text-white transition-colors hover:bg-neutral-800"
-            >
-              Start Free
-            </Link>
+            {userId ? (
+              <Link
+                href="/dashboard"
+                className="rounded bg-black px-4 py-1 text-xs font-semibold text-white transition-colors hover:bg-neutral-800"
+              >
+                Dashboard &rarr;
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/sign-in"
+                  className="rounded border border-black bg-[#F5F2EB] px-3.5 py-1 text-xs font-semibold text-neutral-900 transition-colors hover:bg-black/5"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="rounded bg-black px-4 py-1 text-xs font-semibold text-white transition-colors hover:bg-neutral-800"
+                >
+                  Start Free
+                </Link>
+              </>
+            )}
           </div>
         </header>
 
@@ -105,12 +119,21 @@ export default function LandingPage() {
 
               {/* Centered Single CTA Button */}
               <div className="mt-4 sm:mt-5 flex items-center justify-center">
-                <Link
-                  href="/sign-up"
-                  className="rounded-md bg-black px-7 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:bg-neutral-800"
-                >
-                  Get Started
-                </Link>
+                {userId ? (
+                  <Link
+                    href="/dashboard"
+                    className="rounded-md bg-black px-7 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:bg-neutral-800"
+                  >
+                    Go to Dashboard &rarr;
+                  </Link>
+                ) : (
+                  <Link
+                    href="/sign-up"
+                    className="rounded-md bg-black px-7 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:bg-neutral-800"
+                  >
+                    Get Started
+                  </Link>
+                )}
               </div>
             </div>
 

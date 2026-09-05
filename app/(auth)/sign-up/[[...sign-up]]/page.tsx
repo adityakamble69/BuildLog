@@ -3,6 +3,8 @@ import { SignUp } from "@clerk/nextjs";
 export default function SignUpPage() {
   return (
     <SignUp
+      fallbackRedirectUrl="/dashboard"
+      forceRedirectUrl="/dashboard"
       appearance={{
         elements: {
           rootBox: "w-full max-w-[400px]",
