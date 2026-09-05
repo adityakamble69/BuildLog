@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ProjectStatusBadge } from "@/components/projects/project-status-badge";
 import { ProjectCardActions } from "@/components/projects/project-card-actions";
 import { ProjectHealthBadge } from "@/components/dashboard/project-health-badge";
@@ -37,18 +38,30 @@ function ProjectCard({
         <ProjectCardActions projectId={project.id} projectName={project.name} />
       </CardHeader>
 
-      <CardContent className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <ProjectStatusBadge status={project.status as ProjectStatus} />
-          {healthStatus ? <ProjectHealthBadge status={healthStatus} /> : null}
+      <CardContent className="flex flex-col gap-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <ProjectStatusBadge status={project.status as ProjectStatus} />
+            {healthStatus ? <ProjectHealthBadge status={healthStatus} /> : null}
+          </div>
+          <span className="font-mono text-xs text-muted-foreground">
+            {new Date(project.createdAt).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
         </div>
-        <span className="font-mono text-xs text-muted-foreground">
-          {new Date(project.createdAt).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </span>
+
+        {project.tags.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {project.tags.map((tag) => (
+              <Badge key={tag} variant="outline" className="font-normal">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

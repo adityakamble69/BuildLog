@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "tags" varchar(30)[] DEFAULT '{}'::varchar[] NOT NULL;

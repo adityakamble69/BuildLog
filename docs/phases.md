@@ -374,7 +374,7 @@ Only after MVP is stable, evaluate additional features.
 -   [ ] Advanced analytics
 -   [ ] Project streaks
 -   [ ] Team collaboration
--   [ ] Project tags/labels --- categorize projects (e.g. "frontend",
+-   [x] Project tags/labels --- categorize projects (e.g. "frontend",
     "side-project")
 -   [ ] Export project report --- download the AI-generated project
     report as PDF/Markdown (`lib/ai/project-report.ts` already

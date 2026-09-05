@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, arrayContains, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
@@ -23,15 +23,29 @@ export type ActionResult<T = undefined> =
   | { success: true; data: T }
   | { success: false; error: string };
 
-/** All projects owned by the current user, newest first. */
-export async function getProjects(): Promise<Project[]> {
+/** All projects owned by the current user, newest first, optionally filtered by tag. */
+export async function getProjects(tag?: string): Promise<Project[]> {
   const userId = await requireUserId();
 
   return db
     .select()
     .from(projects)
-    .where(eq(projects.userId, userId))
+    .where(
+      tag
+        ? and(eq(projects.userId, userId), arrayContains(projects.tags, [tag]))
+        : eq(projects.userId, userId)
+    )
     .orderBy(desc(projects.createdAt));
+}
+
+/** Distinct tags across all of the current user's projects, alphabetically — for filter UI. */
+export async function getAllProjectTags(): Promise<string[]> {
+  const userProjects = await getProjects();
+  const tags = new Set<string>();
+  for (const project of userProjects) {
+    for (const tag of project.tags) tags.add(tag);
+  }
+  return [...tags].sort();
 }
 
 /** A single project, scoped to the current user. Returns null if not found/owned. */
@@ -66,6 +80,7 @@ export async function createProject(
       name: parsed.data.name,
       description: parsed.data.description ?? null,
       status: parsed.data.status,
+      tags: parsed.data.tags,
     })
     .returning();
 
@@ -94,6 +109,7 @@ export async function updateProject(
       name: parsed.data.name,
       description: parsed.data.description ?? null,
       status: parsed.data.status,
+      tags: parsed.data.tags,
       updatedAt: new Date(),
     })
     .where(and(eq(projects.id, parsed.data.id), eq(projects.userId, userId)))

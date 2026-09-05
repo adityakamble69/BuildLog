@@ -10,21 +10,29 @@ import type { ShipScoreStatus } from "@/lib/utils/ship-score";
 function ProjectList({
   projects,
   healthByProjectId,
+  emptyState,
 }: {
   projects: Project[];
   /** Optional — keyed by project id. Omitted where Ship Score wasn't computed for this list. */
   healthByProjectId?: Map<string, ShipScoreStatus>;
+  /** Optional override for the empty state (e.g. "no matching tag" vs "no projects yet"). */
+  emptyState?: { title: string; description: string };
 }) {
   if (projects.length === 0) {
     return (
       <EmptyState
         icon={FolderKanban}
-        title="No projects yet"
-        description="Create your first project to start tracking your build."
+        title={emptyState?.title ?? "No projects yet"}
+        description={
+          emptyState?.description ??
+          "Create your first project to start tracking your build."
+        }
         action={
-          <Button asChild>
-            <Link href="/dashboard/projects/new">Create project</Link>
-          </Button>
+          emptyState ? undefined : (
+            <Button asChild>
+              <Link href="/dashboard/projects/new">Create project</Link>
+            </Button>
+          )
         }
       />
     );

@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar, text, timestamp, index } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 /**
  * projects
@@ -18,6 +19,14 @@ export const projects = pgTable(
     description: text("description"),
     // active | completed | archived
     status: varchar("status", { length: 20 }).notNull().default("active"),
+    // Free-form labels for categorizing a project (e.g. "frontend",
+    // "side-project"). Stored as a Postgres text[] rather than a join
+    // table — tags here are per-project labels, not a shared/reusable
+    // taxonomy, so normalization would add complexity without benefit.
+    tags: varchar("tags", { length: 30 })
+      .array()
+      .notNull()
+      .default(sql`'{}'::varchar[]`),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

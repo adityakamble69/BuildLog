@@ -55,6 +55,7 @@ No passwords or authentication secrets are stored in PostgreSQL.
   name          varchar(120)          Yes ---         Project name
   description   text                   No null        Project description
   status        varchar               Yes `active`    active/completed/archived
+  tags          varchar(30)[]          Yes `{}`        Free-form labels (max 6)
   created_at    timestamptz           Yes now()       Creation time
   updated_at    timestamptz           Yes now()       Last update
 

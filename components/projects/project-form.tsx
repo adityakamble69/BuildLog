@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TagInput } from "@/components/projects/tag-input";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,7 @@ function ProjectForm({ project }: { project?: Project }) {
   const [status, setStatus] = React.useState<ProjectStatus>(
     (project?.status as ProjectStatus) ?? "active"
   );
+  const [tags, setTags] = React.useState<string[]>(project?.tags ?? []);
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, setIsPending] = React.useState(false);
 
@@ -47,8 +49,8 @@ function ProjectForm({ project }: { project?: Project }) {
     setIsPending(true);
 
     const result = isEditing
-      ? await updateProject({ id: project!.id, name, description, status })
-      : await createProject({ name, description, status });
+      ? await updateProject({ id: project!.id, name, description, status, tags })
+      : await createProject({ name, description, status, tags });
 
     setIsPending(false);
 
@@ -118,6 +120,14 @@ function ProjectForm({ project }: { project?: Project }) {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="tags">Tags</Label>
+        <TagInput id="tags" value={tags} onChange={setTags} />
+        <p className="text-xs text-muted-foreground">
+          Up to 6 tags. Press Enter or comma to add one.
+        </p>
       </div>
 
       <div className="mt-2 flex items-center gap-2">
