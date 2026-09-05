@@ -15,11 +15,8 @@
  * Provider decision: OpenAI → Gemini (docs/memory.md, docs/rules.md #20).
  */
 
-// Non-versioned alias, per Gemini's model docs — always resolves to the
-// current flash model instead of a dated version string that eventually
-// gets retired (which is what a 404 here usually means). Pin to a dated
-// model only if reproducible output across upgrades becomes a requirement.
-const DEFAULT_MODEL = "gemini-flash-latest";
+const PRIMARY_MODEL = "gemini-flash-latest";
+const FALLBACK_MODEL = "gemini-flash-lite-latest";
 
 function generateContentUrl(model: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -37,9 +34,8 @@ export class AiServiceError extends Error {
 
 /**
  * Sends a system/user prompt pair to the model and returns the parsed JSON
- * body of its response. Throws `AiServiceError` on any failure — the AI
- * being unavailable must never look like a successful empty result, and it
- * must never corrupt or block unrelated project data (docs/PRD.md #8).
+ * body of its response. Includes automatic backoff retries and model fallback
+ * to handle transient Google server capacity spikes (503/429).
  */
 export async function callAiForJson(params: {
   system: string;
@@ -52,80 +48,106 @@ export async function callAiForJson(params: {
     );
   }
 
-  let response: Response;
-  try {
-    response = await fetch(generateContentUrl(DEFAULT_MODEL), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        // Gemini has no separate "system" role in a chat array the way
-        // OpenAI does — systemInstruction is a dedicated top-level field.
-        systemInstruction: {
-          parts: [{ text: params.system }],
-        },
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: params.user }],
+  const modelsToTry = [PRIMARY_MODEL, FALLBACK_MODEL];
+  let lastError: unknown = null;
+  let lastStatus: number | null = null;
+
+  for (const model of modelsToTry) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (attempt > 0) {
+        // Wait 1.5s with backoff before retry
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+
+      let response: Response;
+      try {
+        response = await fetch(generateContentUrl(model), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
           },
-        ],
-        generationConfig: {
-          temperature: 0.4,
-          responseMimeType: "application/json",
-        },
-      }),
-    });
-  } catch (error) {
-    throw new AiServiceError("Could not reach the AI service.", {
-      cause: error,
-    });
+          body: JSON.stringify({
+            // Gemini has no separate "system" role in a chat array the way
+            // OpenAI does — systemInstruction is a dedicated top-level field.
+            systemInstruction: {
+              parts: [{ text: params.system }],
+            },
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: params.user }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.4,
+              responseMimeType: "application/json",
+            },
+          }),
+        });
+      } catch (error) {
+        lastError = error;
+        continue;
+      }
+
+      if (response.ok) {
+        let payload: unknown;
+        try {
+          payload = await response.json();
+        } catch (error) {
+          throw new AiServiceError("The AI service returned an invalid response.", {
+            cause: error,
+          });
+        }
+
+        const content = (
+          payload as {
+            candidates?: Array<{
+              content?: { parts?: Array<{ text?: unknown }> };
+            }>;
+          }
+        )?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (typeof content !== "string" || content.trim().length === 0) {
+          throw new AiServiceError("The AI service returned an empty response.");
+        }
+
+        try {
+          return JSON.parse(content);
+        } catch (error) {
+          throw new AiServiceError("Could not parse the AI service response.", {
+            cause: error,
+          });
+        }
+      }
+
+      lastStatus = response.status;
+      // If 503 (high demand) or 429 (rate limit), retry or try fallback model
+      if (response.status === 503 || response.status === 429) {
+        console.warn(
+          `[lib/ai/client] Gemini model ${model} returned ${response.status} on attempt ${attempt + 1}. Retrying...`
+        );
+        continue;
+      }
+
+      // If other status code, break to try fallback model
+      break;
+    }
   }
 
-  if (!response.ok) {
-    // Never surface the response body — it may contain provider-side
-    // diagnostic detail that shouldn't reach the client (docs/rules.md #12).
-    // A 404 here specifically means the model name/endpoint isn't valid
-    // for this API key (e.g. a dated model id that's since been retired) —
-    // logged server-side so it's diagnosable without exposing it to the UI.
-    if (response.status === 404) {
-      console.error(
-        `[lib/ai/client] Gemini returned 404 for model "${DEFAULT_MODEL}" — the model id may be retired. Check https://ai.google.dev/gemini-api/docs/models for current model names.`
-      );
-    }
+  if (lastStatus === 503) {
     throw new AiServiceError(
-      `The AI service returned an error (status ${response.status}).`
+      "The AI service is experiencing high demand. Please click Regenerate in a few moments."
     );
   }
 
-  let payload: unknown;
-  try {
-    payload = await response.json();
-  } catch (error) {
-    throw new AiServiceError("The AI service returned an invalid response.", {
-      cause: error,
-    });
+  if (lastStatus) {
+    throw new AiServiceError(
+      `The AI service returned an error (status ${lastStatus}).`
+    );
   }
 
-  const content = (
-    payload as {
-      candidates?: Array<{
-        content?: { parts?: Array<{ text?: unknown }> };
-      }>;
-    }
-  )?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-  if (typeof content !== "string" || content.trim().length === 0) {
-    throw new AiServiceError("The AI service returned an empty response.");
-  }
-
-  try {
-    return JSON.parse(content);
-  } catch (error) {
-    throw new AiServiceError("Could not parse the AI service response.", {
-      cause: error,
-    });
-  }
+  throw new AiServiceError("Could not reach the AI service.", {
+    cause: lastError,
+  });
 }
