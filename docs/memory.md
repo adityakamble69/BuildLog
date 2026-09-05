@@ -209,6 +209,16 @@ Not deployed.
     (`drizzle/0000_silent_black_cat.sql`) against the schema in
     `database.md` --- all 5 tables, FKs, and cascade rules match.
 
+### Clerk Core 3 Migration
+
+-   `@clerk/nextjs` installs at Core 3 (released after this project's
+    initial build). `<SignedIn>`/`<SignedOut>`/`<Protect>` are
+    deprecated in favor of a single `<Show when="...">` component.
+-   `components/layout/user-menu.tsx` updated to use
+    `<Show when="signed-in">` / `<Show when="signed-out">`.
+-   `ClerkProvider` moved from wrapping `<html>` to living inside
+    `<body>` in `app/layout.tsx`, per the Core 3 Next.js requirement.
+
 ## Source-of-Truth Rule
 
 If implementation and documentation disagree, stop and reconcile the

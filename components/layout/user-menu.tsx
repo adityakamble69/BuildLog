@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { Show, UserButton } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
 
 function UserMenu() {
   return (
     <div className="flex items-center gap-2">
-      <SignedIn>
+      <Show when="signed-in">
         <UserButton
           appearance={{
             elements: {
@@ -14,15 +14,15 @@ function UserMenu() {
             },
           }}
         />
-      </SignedIn>
-      <SignedOut>
+      </Show>
+      <Show when="signed-out">
         <Button asChild variant="ghost" size="sm">
           <Link href="/sign-in">Sign in</Link>
         </Button>
         <Button asChild size="sm">
           <Link href="/sign-up">Sign up</Link>
         </Button>
-      </SignedOut>
+      </Show>
     </div>
   );
 }
