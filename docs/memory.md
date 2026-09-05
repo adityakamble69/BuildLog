@@ -5,15 +5,15 @@
 
 ## Current Phase
 
-**Phase 6 --- AI Features (complete)**
+**Phase 7 --- Dashboard + Ship Score (complete)**
 
 ## Current Task
 
-Begin Phase 7 --- Dashboard + Ship Score.
+Begin Phase 8 --- Testing + Security.
 
 ## Project Status
 
-Phase 1 through Phase 6 complete. Ready for Phase 7.
+Phase 1 through Phase 7 complete. Ready for Phase 8.
 
 ## Completed Features
 
@@ -319,6 +319,54 @@ Avoid unnecessary integrations during the event MVP.
 
 ## Recent Changes
 
+-   Fixed a pre-existing bug in `components/projects/project-card.tsx`
+    (present since Phase 4/5, surfaced during Phase 7 manual testing):
+    it's a Server Component that was building an inline `onSelect`
+    handler and passing it straight into `DropdownMenuItem`, a Client
+    Component — not allowed across the RSC boundary ("Event handlers
+    cannot be passed to Client Component props"). Extracted the
+    interactive dropdown (edit link + delete dialog trigger) into a new
+    `components/projects/project-card-actions.tsx` (`"use client"`),
+    so `ProjectCard` itself stays a Server Component per
+    docs/architecture.md #3. No visual or behavioral change.
+-   Noted, not fixed: `/dashboard/activity` and `/dashboard/settings`
+    404 — `components/layout/nav-items.ts` has always linked to both,
+    but neither page has been built. Not in scope for Phase 6/7; flagged
+    for a future phase or explicit request.
+-   Completed Phase 7 --- Dashboard + Ship Score:
+    -   `lib/utils/ship-score.ts` --- pure, DB-free Ship Score
+        calculation (task completion 0--50, recent activity 0--30,
+        documentation/dev-log count 0--20, summing to a 0--100 score)
+        with a per-factor plain-language breakdown and a status band
+        (Just started / On track / Needs attention / At risk), per
+        docs/PRD.md #7.8's "must remain understandable, not a
+        scientific measurement" requirement.
+    -   `app/actions/dashboard.ts` --- new `getDashboardOverview()`
+        action: batched, grouped SQL (one query per table, not one per
+        project) for task stats, dev-log counts, and last-activity
+        timestamps across all of a user's projects, plus a
+        cross-project recent-activity feed and latest AI insight,
+        joined through `projects.user_id` for ownership.
+    -   New `components/dashboard/`: `ship-score-meter.tsx`,
+        `project-health-badge.tsx`, `dashboard-stats.tsx`,
+        `latest-insight-card.tsx` --- per docs/architecture.md #11's
+        recommended folder structure.
+    -   `components/activity/activity-feed.tsx` extended with an
+        optional per-entry `projectName` (used only by the dashboard's
+        cross-project feed); `components/projects/project-card.tsx`
+        and `project-list.tsx` extended with an optional health-badge
+        prop. Both changes are additive/backward-compatible --- a
+        project detail page's own single-project feed and any other
+        existing caller needs no changes.
+    -   Rebuilt `app/dashboard/page.tsx`: key-metrics grid, active
+        projects (now showing a Ship Score health badge), cross-project
+        recent activity, latest AI insight card.
+    -   `app/dashboard/projects/[id]/page.tsx`: added a Ship Score card
+        (full breakdown) to the sidebar and a health badge next to the
+        existing project status badge.
+    -   No schema or architecture changes --- built entirely on
+        existing `tasks`/`dev_logs`/`activity_logs`/`ai_insights`
+        tables and existing ownership patterns.
 -   Completed Phase 5 --- Tasks + Development Logs: task board with
     quick status changes, development log composer/editor, activity
     tracking, and a completed/total task progress readout on the

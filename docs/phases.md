@@ -8,14 +8,14 @@ Create the application foundation and documentation structure.
 
 ### Tasks
 
--   [ ] Initialize Next.js + TypeScript application
--   [ ] Configure Tailwind CSS
--   [ ] Configure shadcn/ui
--   [ ] Install/configure Clerk
--   [ ] Configure Drizzle ORM
--   [ ] Connect PostgreSQL
--   [ ] Create `.env.example`
--   [ ] Add documentation files under `docs/`
+-   [x] Initialize Next.js + TypeScript application
+-   [x] Configure Tailwind CSS
+-   [x] Configure shadcn/ui
+-   [x] Install/configure Clerk
+-   [x] Configure Drizzle ORM
+-   [x] Connect PostgreSQL
+-   [x] Create `.env.example`
+-   [x] Add documentation files under `docs/`
 
 ### Files/Modules
 
@@ -37,10 +37,10 @@ foundation.
 
 ### Completion Criteria
 
--   [ ] App runs locally
--   [ ] Database connection works
--   [ ] Clerk package/configuration is ready
--   [ ] Documentation exists
+-   [x] App runs locally
+-   [x] Database connection works
+-   [x] Clerk package/configuration is ready
+-   [x] Documentation exists
 
 ------------------------------------------------------------------------
 
@@ -52,14 +52,14 @@ Build the visual foundation and shared application shell.
 
 ### Tasks
 
--   [ ] Configure design tokens
--   [ ] Build application layout
--   [ ] Build navbar/topbar
--   [ ] Build responsive sidebar
--   [ ] Build reusable cards
--   [ ] Build buttons and form controls
--   [ ] Build loading/empty/error states
--   [ ] Build landing page foundation
+-   [x] Configure design tokens
+-   [x] Build application layout
+-   [x] Build navbar/topbar
+-   [x] Build responsive sidebar
+-   [x] Build reusable cards
+-   [x] Build buttons and form controls
+-   [x] Build loading/empty/error states
+-   [x] Build landing page foundation
 
 ### Files/Modules
 
@@ -78,9 +78,9 @@ A consistent responsive UI shell exists.
 
 ### Completion Criteria
 
--   [ ] Design system matches design.md
--   [ ] Desktop and mobile layouts work
--   [ ] Shared components are reusable
+-   [x] Design system matches design.md
+-   [x] Desktop and mobile layouts work
+-   [x] Shared components are reusable
 
 ------------------------------------------------------------------------
 
@@ -256,13 +256,13 @@ Turn project data into a clear decision-oriented dashboard.
 
 ### Tasks
 
--   [ ] Build dashboard overview
--   [ ] Project statistics
--   [ ] Recent activity
--   [ ] Latest AI insight
--   [ ] Implement transparent Ship Score
--   [ ] Add project health indicators
--   [ ] Polish project overview
+-   [x] Build dashboard overview
+-   [x] Project statistics
+-   [x] Recent activity
+-   [x] Latest AI insight
+-   [x] Implement transparent Ship Score
+-   [x] Add project health indicators
+-   [x] Polish project overview
 
 ### Files/Modules
 
@@ -280,10 +280,10 @@ Users immediately understand project status and what to do next.
 
 ### Completion Criteria
 
--   [ ] Dashboard is useful at a glance
--   [ ] Calculations are correct
--   [ ] Ship Score is understandable
--   [ ] Responsive layout works
+-   [x] Dashboard is useful at a glance
+-   [x] Calculations are correct
+-   [x] Ship Score is understandable
+-   [x] Responsive layout works
 
 ------------------------------------------------------------------------
 

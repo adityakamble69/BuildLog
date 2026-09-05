@@ -12,11 +12,18 @@ import { TaskBoard } from "@/components/tasks/task-board";
 import { DevLogList } from "@/components/dev-logs/dev-log-list";
 import { ActivityFeed } from "@/components/activity/activity-feed";
 import { ProjectReportCard } from "@/components/ai/project-report-card";
+import { ShipScoreMeter } from "@/components/dashboard/ship-score-meter";
+import { ProjectHealthBadge } from "@/components/dashboard/project-health-badge";
 import { getProjectById } from "@/app/actions/projects";
 import { getTasksByProject } from "@/app/actions/tasks";
 import { getDevLogsByProject } from "@/app/actions/dev-logs";
 import { getRecentActivity } from "@/app/actions/activity";
 import { getLogAnalysesByProject, getLatestProjectReport } from "@/app/actions/ai";
+import {
+  calculateShipScore,
+  getShipScoreStatus,
+  shipScoreInputFromCollections,
+} from "@/lib/utils/ship-score";
 import type { ProjectStatus } from "@/lib/db/schema/projects";
 
 export default async function ProjectDetailPage({
@@ -40,6 +47,14 @@ export default async function ProjectDetailPage({
       getLatestProjectReport(project.id),
     ]);
 
+  // activity is already ordered newest-first (getRecentActivity), so the
+  // first entry's timestamp is a valid "last activity" even though the
+  // list itself is capped — see shipScoreInputFromCollections.
+  const shipScore = calculateShipScore(
+    shipScoreInputFromCollections({ tasks, activity, devLogs })
+  );
+  const shipScoreStatus = getShipScoreStatus(shipScore);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -49,6 +64,7 @@ export default async function ProjectDetailPage({
               {project.name}
             </h1>
             <ProjectStatusBadge status={project.status as ProjectStatus} />
+            <ProjectHealthBadge status={shipScoreStatus} />
           </div>
           <p className="max-w-2xl text-sm text-muted-foreground">
             {project.description || "No description yet."}
@@ -110,6 +126,15 @@ export default async function ProjectDetailPage({
         </div>
 
         <aside className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Ship Score</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ShipScoreMeter shipScore={shipScore} status={shipScoreStatus} />
+            </CardContent>
+          </Card>
+
           <ProjectReportCard projectId={project.id} initialInsight={latestReport} />
 
           <Card>

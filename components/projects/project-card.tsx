@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 
 import {
   Card,
@@ -8,18 +7,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { ProjectStatusBadge } from "@/components/projects/project-status-badge";
-import { DeleteProjectDialog } from "@/components/projects/delete-project-dialog";
+import { ProjectCardActions } from "@/components/projects/project-card-actions";
+import { ProjectHealthBadge } from "@/components/dashboard/project-health-badge";
 import type { Project, ProjectStatus } from "@/lib/db/schema/projects";
+import type { ShipScoreStatus } from "@/lib/utils/ship-score";
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({
+  project,
+  healthStatus,
+}: {
+  project: Project;
+  /** Optional — omitted where a Ship Score hasn't been computed for this list. */
+  healthStatus?: ShipScoreStatus;
+}) {
   return (
     <Card className="group relative flex flex-col justify-between">
       <CardHeader className="flex-row items-start justify-between gap-2 space-y-0">
@@ -33,43 +34,14 @@ function ProjectCard({ project }: { project: Project }) {
           </CardDescription>
         </Link>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0 text-muted-foreground"
-              aria-label={`Actions for ${project.name}`}
-            >
-              <MoreVertical className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/projects/${project.id}/edit`}>
-                <Pencil />
-                Edit
-              </Link>
-            </DropdownMenuItem>
-            <DeleteProjectDialog
-              projectId={project.id}
-              projectName={project.name}
-              trigger={
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <Trash2 />
-                  Delete
-                </DropdownMenuItem>
-              }
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ProjectCardActions projectId={project.id} projectName={project.name} />
       </CardHeader>
 
       <CardContent className="flex items-center justify-between">
-        <ProjectStatusBadge status={project.status as ProjectStatus} />
+        <div className="flex items-center gap-1.5">
+          <ProjectStatusBadge status={project.status as ProjectStatus} />
+          {healthStatus ? <ProjectHealthBadge status={healthStatus} /> : null}
+        </div>
         <span className="font-mono text-xs text-muted-foreground">
           {new Date(project.createdAt).toLocaleDateString(undefined, {
             month: "short",

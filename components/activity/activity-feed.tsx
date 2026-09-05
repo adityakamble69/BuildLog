@@ -41,7 +41,14 @@ function describeActivity(entry: ActivityLog): string {
   }
 }
 
-function ActivityFeed({ activity }: { activity: ActivityLog[] }) {
+type ActivityFeedEntry = ActivityLog & { projectName?: string };
+
+/**
+ * `projectName` is only present when the feed spans multiple projects
+ * (the dashboard's cross-project feed) — a single project's own
+ * activity feed has no need to repeat its own name.
+ */
+function ActivityFeed({ activity }: { activity: ActivityFeedEntry[] }) {
   if (activity.length === 0) {
     return (
       <p className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
@@ -63,14 +70,21 @@ function ActivityFeed({ activity }: { activity: ActivityLog[] }) {
               <p className="text-sm text-foreground">
                 {describeActivity(entry)}
               </p>
-              <p className="font-mono text-xs text-muted-foreground">
-                {new Date(entry.createdAt).toLocaleString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </p>
+              <div className="flex items-center gap-1.5">
+                {entry.projectName ? (
+                  <span className="text-xs text-muted-foreground">
+                    {entry.projectName} ·
+                  </span>
+                ) : null}
+                <p className="font-mono text-xs text-muted-foreground">
+                  {new Date(entry.createdAt).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
             </div>
           </li>
         );
