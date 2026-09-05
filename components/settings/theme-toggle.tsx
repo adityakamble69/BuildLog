@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 import { Moon, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,9 @@ function ThemeToggle() {
   // doesn't know the persisted preference yet (see components/theme-provider.tsx).
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- next-themes' documented hydration-safe pattern: the persisted theme is only known client-side, so we render a fixed default until mount, then reveal the real state in one follow-up render.
+    // The persisted preference is only known client-side, so render the
+    // server's dark default until hydration has completed.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

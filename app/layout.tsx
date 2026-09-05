@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       // (via the inline script it injects), so the class list it manages
       // is intentionally left out of server-rendered markup here.
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <ThemeProvider>

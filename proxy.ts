@@ -1,16 +1,9 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// Per docs/architecture.md and docs/rules.md:
-// - Clerk is the only authentication provider.
-// - Protected application routes require an authenticated session.
-// - Public marketing/auth routes remain accessible without a session.
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    await auth.protect();
-  }
-});
+// Authentication is enforced by the page, route, and Server Function that
+// accesses protected data. Keep Clerk's proxy integration enabled so those
+// resource-level checks can read the request session.
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
