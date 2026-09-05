@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, index } from "drizzle-orm/pg-core";
 
 /**
  * projects
@@ -9,20 +9,29 @@ import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
  * ai_insights, and activity_logs all inherit authorization through
  * their project_id.
  */
-export const projects = pgTable("projects", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: varchar("user_id", { length: 255 }).notNull(),
-  name: varchar("name", { length: 120 }).notNull(),
-  description: text("description"),
-  // active | completed | archived
-  status: varchar("status", { length: 20 }).notNull().default("active"),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const projects = pgTable(
+  "projects",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: varchar("user_id", { length: 255 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    description: text("description"),
+    // active | completed | archived
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    // Per docs/database.md #9: supports "find my projects" and
+    // status-filtered dashboard/list queries.
+    index("projects_user_id_idx").on(table.userId),
+    index("projects_user_id_status_idx").on(table.userId, table.status),
+  ]
+);
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
