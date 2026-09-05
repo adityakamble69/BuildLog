@@ -9,7 +9,7 @@ const LOG_LINES = [
 const SHIP_SCORE = 74;
 
 /**
- * A static preview of what using BuildLog actually looks like: a
+ * A static preview of what using DevTrace actually looks like: a
  * timestamped log, real project status, and the Ship Score readout.
  * This stands in for a generic feature-icon grid in the hero — the
  * product's own primary artifact (the dev log) is the demo.

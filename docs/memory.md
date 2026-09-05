@@ -1,4 +1,4 @@
-# BuildLog --- Project Memory / Current State
+# DevTrace --- Project Memory / Current State
 
 > This file is the live project state. Update it whenever meaningful
 > development progress occurs.
@@ -18,7 +18,7 @@ Phase 1 through Phase 7 complete. Ready for Phase 8.
 ## Completed Features
 
 -   [x] Product concept defined
--   [x] BuildLog MVP scope defined
+-   [x] DevTrace MVP scope defined
 -   [x] Core user journey defined
 -   [x] Clerk selected for authentication
 -   [x] PostgreSQL selected for persistence
@@ -277,7 +277,7 @@ None.
 
 ### Product
 
-BuildLog is an AI development journal/project tracker, not a full
+DevTrace is an AI development journal/project tracker, not a full
 project-management replacement.
 
 ### Authentication
@@ -377,7 +377,7 @@ Avoid unnecessary integrations during the event MVP.
     "Design Refresh" below).
 -   Completed Phase 3 --- Authentication: real sign-in/sign-up routes,
     user display helper, dashboard greeting.
--   Established BuildLog product direction.
+-   Established DevTrace product direction.
 -   Defined MVP feature set.
 -   Defined system architecture.
 -   Defined initial relational schema.

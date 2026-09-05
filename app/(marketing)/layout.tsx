@@ -15,7 +15,7 @@ export default function MarketingLayout({
       <main className="flex-1">{children}</main>
       <footer className="border-t border-border px-4 py-6 text-center text-xs text-muted-foreground sm:px-8">
         <p>
-          BuildLog --- an AI-powered development journal and project tracker.
+          DevTrace --- an AI-powered development journal and project tracker.
         </p>
       </footer>
     </div>

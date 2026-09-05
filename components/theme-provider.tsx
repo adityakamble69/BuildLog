@@ -5,7 +5,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 /**
  * Wraps next-themes so it toggles the `.dark` class on <html> (the same
- * class BuildLog's Tailwind theme in app/globals.css already keys off).
+ * class DevTrace's Tailwind theme in app/globals.css already keys off).
  * `disableTransitionOnChange` avoids a flash of transitioning colors when
  * the theme switches.
  */

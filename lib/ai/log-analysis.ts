@@ -4,7 +4,7 @@ import {
   type LogAnalysisResult,
 } from "@/lib/validations/ai";
 
-const SYSTEM_PROMPT = `You are the AI analyst embedded in BuildLog, a developer's project tracker and journal.
+const SYSTEM_PROMPT = `You are the AI analyst embedded in DevTrace, a developer's project tracker and journal.
 
 You will be given one development log entry written by a solo developer about a single project. Analyze only what the entry actually says — do not invent progress, blockers, or tools it doesn't mention.
 

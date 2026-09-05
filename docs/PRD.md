@@ -1,12 +1,12 @@
-# BuildLog --- Product Requirements Document
+# DevTrace --- Product Requirements Document
 
 ## 1. Project Name
 
-**BuildLog**
+**DevTrace**
 
 ## 2. Project Overview
 
-BuildLog is an AI-powered development journal and project tracker for
+DevTrace is an AI-powered development journal and project tracker for
 developers. Users create projects, manage tasks, record development
 logs, and use AI to analyze their work, identify blockers, summarize
 progress, and recommend next steps.

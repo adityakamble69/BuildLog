@@ -23,7 +23,7 @@ function ThemeToggle() {
     <Card>
       <CardHeader>
         <CardTitle>Appearance</CardTitle>
-        <CardDescription>Choose how BuildLog looks on this device.</CardDescription>
+        <CardDescription>Choose how DevTrace looks on this device.</CardDescription>
       </CardHeader>
       <CardContent className="flex items-center gap-2">
         <Button

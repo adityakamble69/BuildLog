@@ -1,8 +1,8 @@
-# BuildLog --- System Architecture
+# DevTrace --- System Architecture
 
 ## 1. Architecture Overview
 
-BuildLog uses a modern full-stack Next.js architecture.
+DevTrace uses a modern full-stack Next.js architecture.
 
 ``` text
 Browser
@@ -29,7 +29,7 @@ PostgreSQL
 External AI requests:
 
 ``` text
-BuildLog Server
+DevTrace Server
       ↓
 Gemini API
       ↓
@@ -42,7 +42,7 @@ Database / response
 
 ## 2. Application Flow
 
-1.  User opens BuildLog.
+1.  User opens DevTrace.
 2.  Public pages are available without authentication.
 3.  Clerk handles sign-in/sign-up.
 4.  Protected routes require an authenticated Clerk session.
@@ -209,7 +209,7 @@ UI
 ## 11. Recommended Folder Structure
 
 ``` text
-buildlog/
+devtrace/
 ├── app/
 │   ├── (marketing)/
 │   │   └── page.tsx

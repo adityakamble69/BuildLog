@@ -6,7 +6,7 @@ import {
 import type { Task } from "@/lib/db/schema/tasks";
 import type { DevLog } from "@/lib/db/schema/dev-logs";
 
-const SYSTEM_PROMPT = `You are the AI analyst embedded in BuildLog, a developer's project tracker and journal.
+const SYSTEM_PROMPT = `You are the AI analyst embedded in DevTrace, a developer's project tracker and journal.
 
 You will be given a project's task counts and its most recent development log entries. Base your analysis only on this information — do not invent accomplishments, blockers, or context that isn't implied by the data you're given.
 

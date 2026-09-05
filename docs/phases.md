@@ -1,4 +1,4 @@
-# BuildLog --- Development Roadmap
+# DevTrace --- Development Roadmap
 
 ## Phase 1 --- Project Foundation
 
@@ -328,7 +328,7 @@ A stable production candidate.
 
 ### Objective
 
-Deploy BuildLog and verify production functionality.
+Deploy DevTrace and verify production functionality.
 
 ### Tasks
 
@@ -348,7 +348,7 @@ Phase 8.
 
 ### Expected Result
 
-BuildLog is publicly accessible and functional.
+DevTrace is publicly accessible and functional.
 
 ### Completion Criteria
 
@@ -374,6 +374,15 @@ Only after MVP is stable, evaluate additional features.
 -   [ ] Advanced analytics
 -   [ ] Project streaks
 -   [ ] Team collaboration
+-   [ ] Project tags/labels --- categorize projects (e.g. "frontend",
+    "side-project")
+-   [ ] Export project report --- download the AI-generated project
+    report as PDF/Markdown (`lib/ai/project-report.ts` already
+    generates the report; this adds an export/download path)
+-   [ ] Weekly digest email --- weekly Ship Score summary sent to the
+    user's Clerk email (requires an email provider, e.g. Resend)
+-   [ ] Command palette (Cmd+K) --- quick navigation across
+    projects/tasks
 
 ### Rule
 

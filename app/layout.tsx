@@ -15,9 +15,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BuildLog",
+  title: "DevTrace",
   description:
-    "BuildLog is an AI-powered development journal and project tracker for developers.",
+    "DevTrace is an AI-powered development journal and project tracker for developers.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

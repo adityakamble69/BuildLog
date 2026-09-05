@@ -1,4 +1,4 @@
-# BuildLog --- Development Rules
+# DevTrace --- Development Rules
 
 These rules apply to all human and AI development work.
 

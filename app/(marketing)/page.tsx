@@ -59,7 +59,7 @@ export default function LandingPage() {
             Know exactly where your build stands.
           </h1>
           <p className="max-w-md text-balance text-muted-foreground sm:text-lg">
-            BuildLog helps solo developers track projects, log real progress,
+            DevTrace helps solo developers track projects, log real progress,
             and use AI to spot blockers and decide what to do next.
           </p>
           <div className="flex flex-wrap items-center gap-3">

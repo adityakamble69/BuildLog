@@ -1,8 +1,8 @@
-# BuildLog --- Design System
+# DevTrace --- Design System
 
 ## 1. Design Philosophy
 
-BuildLog should feel like a premium developer tool: - Focused -
+DevTrace should feel like a premium developer tool: - Focused -
 Technical - Calm - Modern - Information-dense without feeling
 cluttered - AI-enhanced without looking like an AI gimmick
 
@@ -199,7 +199,7 @@ Interactive elements should have clear hover and keyboard focus states.
 Use subtle animations only: - 150--250ms transitions - Fade/slide for
 panels - Progress transitions - Skeleton shimmer if appropriate
 
-Avoid excessive animation because BuildLog is a productivity tool.
+Avoid excessive animation because DevTrace is a productivity tool.
 
 ## 22. Responsive Breakpoints
 

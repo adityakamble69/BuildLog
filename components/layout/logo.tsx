@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Terminal } from "lucide-react";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
@@ -12,10 +12,15 @@ function Logo({ className, href = "/dashboard" }: { className?: string; href?: s
         className
       )}
     >
-      <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-        <Terminal className="size-4" />
-      </span>
-      <span>BuildLog</span>
+      <Image
+        src="/logo.png"
+        alt="DevTrace"
+        width={28}
+        height={28}
+        className="size-7 shrink-0 rounded-md"
+        priority
+      />
+      <span>DevTrace</span>
     </Link>
   );
 }

@@ -1,11 +1,11 @@
-# BuildLog --- Database Design
+# DevTrace --- Database Design
 
 ## 1. Database Technology
 
 **PostgreSQL, hosted on Supabase**
 
 Supabase is used purely as a managed Postgres host for this project.
-BuildLog does not use Supabase Auth, Supabase Storage, or Supabase
+DevTrace does not use Supabase Auth, Supabase Storage, or Supabase
 Realtime --- Clerk remains the only authentication provider (see
 Section 4).
 
@@ -29,7 +29,7 @@ reason --- see Section 15.
 
 Recommended local/development database name:
 
-`buildlog`
+`devtrace`
 
 Production database name is provider-dependent.
 

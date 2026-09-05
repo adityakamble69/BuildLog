@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/settings/theme-toggle";
 /**
  * Settings (docs/PRD.md #10, docs/architecture.md #13).
  *
- * BuildLog has no app-level preferences of its own yet (theme, notifications,
+ * DevTrace has no app-level preferences of its own yet (theme, notifications,
  * etc. are not in MVP scope per docs/phases.md). Per docs/rules.md — "no
  * custom password storage", "use Clerk" — account settings (profile, email,
  * password, connected accounts, security) are delegated entirely to Clerk's
