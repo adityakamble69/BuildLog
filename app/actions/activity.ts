@@ -7,6 +7,8 @@ import { activityLogs, type ActivityLog } from "@/lib/db/schema/activity-logs";
 import { projects } from "@/lib/db/schema/projects";
 import { requireUserId } from "@/lib/auth/current-user";
 
+export type UserActivityEntry = ActivityLog & { projectName: string };
+
 /**
  * Lightweight activity trail (docs/database.md, docs/phases.md Phase 5).
  * Not a public API surface on its own — recordActivity() is called from
@@ -51,4 +53,33 @@ export async function getRecentActivity(
     .where(and(eq(activityLogs.projectId, projectId), eq(projects.userId, userId)))
     .orderBy(desc(activityLogs.createdAt))
     .limit(limit);
+}
+
+/**
+ * Full cross-project activity feed for the dedicated /dashboard/activity
+ * page. Same ownership join as getRecentActivity, just not scoped to a
+ * single project and with pagination instead of a fixed small limit.
+ */
+export async function getAllActivity(
+  limit = 30,
+  offset = 0
+): Promise<UserActivityEntry[]> {
+  const userId = await requireUserId();
+
+  return db
+    .select({
+      id: activityLogs.id,
+      projectId: activityLogs.projectId,
+      userId: activityLogs.userId,
+      action: activityLogs.action,
+      metadata: activityLogs.metadata,
+      createdAt: activityLogs.createdAt,
+      projectName: projects.name,
+    })
+    .from(activityLogs)
+    .innerJoin(projects, eq(projects.id, activityLogs.projectId))
+    .where(eq(projects.userId, userId))
+    .orderBy(desc(activityLogs.createdAt))
+    .limit(limit)
+    .offset(offset);
 }
