@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Trash2 } from "lucide-react";
+import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -12,15 +12,24 @@ import { TaskBoard } from "@/components/tasks/task-board";
 import { DevLogList } from "@/components/dev-logs/dev-log-list";
 import { ActivityFeed } from "@/components/activity/activity-feed";
 import { ProjectReportCard } from "@/components/ai/project-report-card";
+import { LearningSummaryCard } from "@/components/ai/learning-summary-card";
 import { ShipScoreMeter } from "@/components/dashboard/ship-score-meter";
 import { ProjectHealthBadge } from "@/components/dashboard/project-health-badge";
+import { StreakBadge } from "@/components/dashboard/streak-badge";
+import { ActivityHeatmap } from "@/components/analytics/activity-heatmap";
+import { TaskVelocityChart } from "@/components/analytics/task-velocity-chart";
 import { ProjectGitHubCard } from "@/components/github/project-github-card";
+import { calculateStreaks } from "@/lib/utils/streaks";
 import { getProjectById } from "@/app/actions/projects";
 import { getGitHubConnection } from "@/app/actions/github";
 import { getTasksByProject } from "@/app/actions/tasks";
 import { getDevLogsByProject } from "@/app/actions/dev-logs";
 import { getRecentActivity } from "@/app/actions/activity";
-import { getLogAnalysesByProject, getLatestProjectReport } from "@/app/actions/ai";
+import {
+  getLogAnalysesByProject,
+  getLatestProjectReport,
+  getLatestLearningSummary,
+} from "@/app/actions/ai";
 import {
   calculateShipScore,
   getShipScoreStatus,
@@ -40,15 +49,23 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
-  const [tasks, devLogs, activity, logAnalyses, latestReport, githubConnection] =
-    await Promise.all([
-      getTasksByProject(project.id),
-      getDevLogsByProject(project.id),
-      getRecentActivity(project.id),
-      getLogAnalysesByProject(project.id),
-      getLatestProjectReport(project.id),
-      getGitHubConnection(),
-    ]);
+  const [
+    tasks,
+    devLogs,
+    activity,
+    logAnalyses,
+    latestReport,
+    latestLearnings,
+    githubConnection,
+  ] = await Promise.all([
+    getTasksByProject(project.id),
+    getDevLogsByProject(project.id),
+    getRecentActivity(project.id),
+    getLogAnalysesByProject(project.id),
+    getLatestProjectReport(project.id),
+    getLatestLearningSummary(project.id),
+    getGitHubConnection(),
+  ]);
 
   // activity is already ordered newest-first (getRecentActivity), so the
   // first entry's timestamp is a valid "last activity" even though the
@@ -57,6 +74,7 @@ export default async function ProjectDetailPage({
     shipScoreInputFromCollections({ tasks, activity, devLogs })
   );
   const shipScoreStatus = getShipScoreStatus(shipScore);
+  const projectStreaks = calculateStreaks(devLogs.map((l) => l.createdAt));
 
   return (
     <div className="flex flex-col gap-6">
@@ -68,6 +86,7 @@ export default async function ProjectDetailPage({
             </h1>
             <ProjectStatusBadge status={project.status as ProjectStatus} />
             <ProjectHealthBadge status={shipScoreStatus} />
+            <StreakBadge streaks={projectStreaks} />
           </div>
           <p className="max-w-2xl text-sm text-muted-foreground">
             {project.description || "No description yet."}
@@ -83,6 +102,14 @@ export default async function ProjectDetailPage({
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          {project.isPublic ? (
+            <Button variant="outline" asChild>
+              <Link href={`/p/${project.id}`} target="_blank">
+                <ExternalLink className="size-3.5" />
+                Public Page
+              </Link>
+            </Button>
+          ) : null}
           <Button variant="secondary" asChild>
             <Link href={`/dashboard/projects/${project.id}/edit`}>
               <Pencil />
@@ -111,11 +138,19 @@ export default async function ProjectDetailPage({
         <div className="flex flex-col gap-8">
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold">Tasks</h2>
+            {tasks.length > 0 ? <TaskVelocityChart tasks={tasks} /> : null}
             <TaskBoard projectId={project.id} tasks={tasks} />
           </section>
 
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold">Development log</h2>
+            {devLogs.length > 0 ? (
+              <ActivityHeatmap
+                timestamps={devLogs.map((l) => l.createdAt)}
+                weeksCount={16}
+                title="Project Activity Heatmap"
+              />
+            ) : null}
             <Card>
               <CardContent className="pt-6">
                 <DevLogList
@@ -138,7 +173,16 @@ export default async function ProjectDetailPage({
             </CardContent>
           </Card>
 
-          <ProjectReportCard projectId={project.id} initialInsight={latestReport} />
+          <ProjectReportCard
+            projectId={project.id}
+            projectName={project.name}
+            initialInsight={latestReport}
+          />
+
+          <LearningSummaryCard
+            projectId={project.id}
+            initialInsight={latestLearnings}
+          />
 
           <ProjectGitHubCard
             projectId={project.id}

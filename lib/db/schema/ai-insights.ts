@@ -39,5 +39,9 @@ export const aiInsights = pgTable(
 export type AiInsight = typeof aiInsights.$inferSelect;
 export type NewAiInsight = typeof aiInsights.$inferInsert;
 
-export const AI_INSIGHT_TYPES = ["log_analysis", "report"] as const;
+export const AI_INSIGHT_TYPES = [
+  "log_analysis",
+  "report",
+  "learning_summary",
+] as const;
 export type AiInsightType = (typeof AI_INSIGHT_TYPES)[number];

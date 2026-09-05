@@ -55,6 +55,7 @@ No passwords or authentication secrets are stored in PostgreSQL.
   name          varchar(120)          Yes ---         Project name
   description   text                   No null        Project description
   status        varchar               Yes `active`    active/completed/archived
+  is_public     boolean               Yes `false`     Public portfolio toggle (/p/[id])
   tags          varchar(30)[]          Yes `{}`        Free-form labels (max 6)
   created_at    timestamptz           Yes now()       Creation time
   updated_at    timestamptz           Yes now()       Last update
@@ -87,11 +88,11 @@ No passwords or authentication secrets are stored in PostgreSQL.
 ### ai_insights
 
   Column       Type            Required Default     Notes
-  ------------ ------------- ---------- ----------- ----------------------
+  ------------ ------------- ---------- ----------- ----------------------------------------
   id           uuid                 Yes generated   Primary key
   project_id   uuid                 Yes ---         FK projects.id
   dev_log_id   uuid                  No null        Optional source log
-  type         varchar              Yes ---         log_analysis/report
+  type         varchar              Yes ---         log_analysis/report/learning_summary
   content      jsonb                Yes ---         Structured AI result
   created_at   timestamptz          Yes now()       Creation time
 

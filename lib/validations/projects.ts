@@ -27,6 +27,7 @@ export const createProjectSchema = z.object({
   name: nonEmptyString(120),
   description: optionalString(2000, "Description is too long."),
   status: projectStatusSchema.default("active"),
+  isPublic: z.boolean().optional().default(false),
   tags: projectTagsSchema,
 });
 

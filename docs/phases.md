@@ -295,17 +295,17 @@ Stabilize the application before deployment.
 
 ### Tasks
 
--   [ ] Test authentication
--   [ ] Test ownership boundaries
--   [ ] Test project CRUD
--   [ ] Test task CRUD
--   [ ] Test logs
--   [ ] Test validation
--   [ ] Test AI failures
--   [ ] Check environment variables
--   [ ] Check responsive behavior
--   [ ] Check accessibility
--   [ ] Fix critical bugs
+-   [x] Test authentication
+-   [x] Test ownership boundaries
+-   [x] Test project CRUD
+-   [x] Test task CRUD
+-   [x] Test logs
+-   [x] Test validation
+-   [x] Test AI failures
+-   [x] Check environment variables
+-   [x] Check responsive behavior
+-   [x] Check accessibility
+-   [x] Fix critical bugs
 
 ### Dependencies
 
@@ -317,10 +317,10 @@ A stable production candidate.
 
 ### Completion Criteria
 
--   [ ] Critical flows pass
--   [ ] No known critical security issue
--   [ ] No exposed secrets
--   [ ] Major responsive/accessibility issues fixed
+-   [x] Critical flows pass
+-   [x] No known critical security issue
+-   [x] No exposed secrets
+-   [x] Major responsive/accessibility issues fixed
 
 ------------------------------------------------------------------------
 
@@ -368,21 +368,32 @@ Only after MVP is stable, evaluate additional features.
 
 ### Candidate Tasks
 
--   [ ] GitHub integration
--   [ ] Learning summary
--   [ ] Public project pages
--   [ ] Advanced analytics
--   [ ] Project streaks
--   [ ] Team collaboration
+-   [x] GitHub integration --- OAuth connect flow (PKCE + CSRF-safe
+    state), AES-256-GCM encrypted token storage, connection card in
+    Settings (`app/api/github/connect`, `app/api/github/callback`,
+    `lib/github/service.ts`)
+-   [x] Learning summary --- AI-powered extraction of technical takeaways,
+    architectural decisions, and reusable tips from dev logs (`lib/ai/learning-summary.ts`,
+    `components/ai/learning-summary-card.tsx`)
+-   [x] Public project pages --- shareable showcase URL at `/p/[id]` with
+    tasks, dev-log timeline, and Ship Score (`app/p/[id]/page.tsx`, `projects.is_public`)
+-   [x] Advanced analytics --- interactive development activity heatmap
+    and task velocity breakdown (`components/analytics/activity-heatmap.tsx`,
+    `components/analytics/task-velocity-chart.tsx`)
+-   [x] Project streaks --- consecutive active day tracking with visual flame
+    badges on Dashboard and Project detail (`lib/utils/streaks.ts`,
+    `components/dashboard/streak-badge.tsx`)
+-   [ ] Team collaboration --- multi-user organizations, invites, and roles
+    (requires organization schema and multi-tenant authorization)
 -   [x] Project tags/labels --- categorize projects (e.g. "frontend",
     "side-project")
--   [ ] Export project report --- download the AI-generated project
-    report as PDF/Markdown (`lib/ai/project-report.ts` already
-    generates the report; this adds an export/download path)
+-   [x] Export project report --- client-side Markdown (.md) download and
+    print-to-PDF view for AI project reports (`components/ai/project-report-view.tsx`)
 -   [ ] Weekly digest email --- weekly Ship Score summary sent to the
-    user's Clerk email (requires an email provider, e.g. Resend)
--   [ ] Command palette (Cmd+K) --- quick navigation across
-    projects/tasks
+    user's Clerk email (requires external email provider e.g. Resend)
+-   [x] Command palette (Cmd+K) --- global search and quick navigation modal
+    across projects and tasks (`components/layout/command-palette.tsx`,
+    `app/actions/search.ts`)
 
 ### Rule
 

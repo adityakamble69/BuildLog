@@ -40,6 +40,7 @@ function ProjectForm({ project }: { project?: Project }) {
     (project?.status as ProjectStatus) ?? "active"
   );
   const [tags, setTags] = React.useState<string[]>(project?.tags ?? []);
+  const [isPublic, setIsPublic] = React.useState(project?.isPublic ?? false);
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, setIsPending] = React.useState(false);
 
@@ -49,8 +50,15 @@ function ProjectForm({ project }: { project?: Project }) {
     setIsPending(true);
 
     const result = isEditing
-      ? await updateProject({ id: project!.id, name, description, status, tags })
-      : await createProject({ name, description, status, tags });
+      ? await updateProject({
+          id: project!.id,
+          name,
+          description,
+          status,
+          isPublic,
+          tags,
+        })
+      : await createProject({ name, description, status, isPublic, tags });
 
     setIsPending(false);
 
@@ -128,6 +136,28 @@ function ProjectForm({ project }: { project?: Project }) {
         <p className="text-xs text-muted-foreground">
           Up to 6 tags. Press Enter or comma to add one.
         </p>
+      </div>
+
+      <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/20 p-3.5">
+        <input
+          type="checkbox"
+          id="isPublic"
+          checked={isPublic}
+          onChange={(e) => setIsPublic(e.target.checked)}
+          className="mt-0.5 size-4 rounded border-border accent-primary focus:ring-2 focus:ring-primary cursor-pointer"
+        />
+        <div className="flex flex-col gap-0.5">
+          <Label htmlFor="isPublic" className="cursor-pointer text-sm font-medium">
+            Public Showcase Page
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            Make this project publicly viewable at{" "}
+            <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">
+              /p/{project?.id || "[id]"}
+            </code>
+            . Anyone with the link will be able to see tasks, development logs, and the Ship Score.
+          </p>
+        </div>
       </div>
 
       <div className="mt-2 flex items-center gap-2">

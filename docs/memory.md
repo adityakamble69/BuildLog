@@ -5,15 +5,15 @@
 
 ## Current Phase
 
-**Phase 7 --- Dashboard + Ship Score (complete)**
+**Phase 8 --- Testing + Security (complete)**
 
 ## Current Task
 
-Begin Phase 8 --- Testing + Security.
+Begin Phase 9 --- Deployment.
 
 ## Project Status
 
-Phase 1 through Phase 7 complete. Ready for Phase 8.
+Phase 1 through Phase 8 complete. Ready for Phase 9.
 
 ## Completed Features
 
@@ -91,6 +91,87 @@ Phase 1 was divided into two parts for clarity:
         (Phase 6)
 -   [ ] Set a real `GEMINI_API_KEY` in `.env.local` to exercise AI
         features locally (calls fail gracefully without one)
+
+## Completed Features (Phase 10 additions)
+
+-   [x] **Export Project Report**: client-side `.md` download and Print/Save
+        PDF view for AI project reports (`components/ai/project-report-view.tsx`).
+-   [x] **Command Palette (`Cmd+K` / `Ctrl+K`)**: global spotlight navigation
+        modal with keyboard navigation across user projects, tasks, and quick links
+        (`components/layout/command-palette.tsx`, `app/actions/search.ts`).
+-   [x] **Project & Developer Streaks**: pure, timezone-safe streak calculation
+        tracking consecutive active days (`lib/utils/streaks.ts`), full unit test
+        suite (`tests/streaks.test.ts`), and animated flame badge
+        (`components/dashboard/streak-badge.tsx`).
+-   [x] **Learning Summary (AI-Powered)**: Gemini-powered synthesis of technical
+        learnings, architectural decisions, and reusable tips from dev logs
+        (`lib/ai/learning-summary.ts`, `lib/validations/ai.ts`, `app/actions/ai.ts`,
+        `components/ai/learning-summary-card.tsx`).
+-   [x] **Public Project Pages (`/p/[id]`)**: public showcase page
+        (`app/p/[id]/page.tsx`), `is_public` boolean column on `projects`,
+        toggle in project form, and Drizzle migration `0003_jazzy_doctor_octopus.sql`.
+-   [x] **Advanced Analytics & Heatmaps**: GitHub-style activity contribution
+        heatmap (`components/analytics/activity-heatmap.tsx`) and task velocity
+        breakdown chart (`components/analytics/task-velocity-chart.tsx`).
+
+## Completed Features (Phase 8 additions)
+
+-   [x] Automated test suite added under `tests/` (`npm test`, run via
+        `tsx --test`) --- 37 tests covering `lib/utils/ship-score.ts`
+        (boundary conditions for every scoring band, division-by-zero
+        guard on 0-task projects, `isNewProject` detection) and every
+        Zod schema in `lib/validations/` (UUID/enum tampering rejected,
+        string length limits, empty-vs-missing-field normalization).
+        `tsx` promoted from a transitive (`drizzle-kit`) dependency to
+        an explicit `devDependency` since the test suite now depends on
+        it directly (docs/rules.md #17).
+-   [x] **Bug found and fixed via the new tests**: `description` fields
+        on `createProjectSchema` and `createTaskSchema` used a
+        `.optional().or(z.literal("").transform(() => undefined))`
+        pattern that silently failed --- an empty string already
+        satisfied the first union branch, so Zod never fell through to
+        normalize it to `undefined`. Net effect: a blank description
+        was stored as `""` instead of `null`. Fixed with a new
+        `optionalString()` helper in `lib/validations/common.ts` using
+        `z.preprocess()`, which normalizes `""`/whitespace-only input
+        to `undefined` before validation runs, independent of union
+        branch order. (`optionalDateSchema`/`optionalDueDateSchema`
+        did not have this bug --- their `.refine()` already rejects `""`
+        on the first branch, so the existing pattern falls through
+        correctly there; left unchanged, regression test added anyway.)
+-   [x] Static/code audit of ownership enforcement across
+        `app/actions/projects.ts`, `tasks.ts`, and `dev-logs.ts`: every
+        mutation scopes its `WHERE` clause by `userId` (directly, or via
+        the parent project's `userId` for tasks) rather than checking
+        ownership only after a lookup by ID --- confirmed correct against
+        docs/rules.md #9/#10.
+-   [x] Recreated `.env.example`, which did not exist in the repository
+        despite being marked complete in Phase 1 --- `.gitignore`'s
+        blanket `.env*` pattern had silently excluded it from ever being
+        committed. Documents every variable the app code actually reads
+        (`process.env.*` audited via grep, cross-checked against
+        `lib/db`, `lib/ai/client.ts`, `lib/github/service.ts`, and Clerk):
+        `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`,
+        `DATABASE_URL`, `DIRECT_URL`, `GEMINI_API_KEY`,
+        `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`,
+        `GITHUB_TOKEN_ENCRYPTION_KEY` --- no secret values included.
+-   [x] Verified clean `next build` (Turbopack), `tsc --noEmit`, and
+        `eslint .` --- all pass with zero errors/warnings. (Build was
+        run against a throwaway font stub in `app/layout.tsx` to work
+        around the same sandbox Google-Fonts network block noted in
+        earlier phases; the real file was restored unchanged afterward.
+        This is a sandbox limitation, not an app defect.)
+-   [x] Manually tested (by the developer, outside the sandbox, where
+        real Clerk/Supabase/Gemini/GitHub credentials are available):
+        sign-in/sign-out and route protection; project, task, and dev-log
+        CRUD end-to-end; GitHub OAuth connect flow; AI failure handling
+        (Gemini errors degrade to a user-facing error state rather than
+        crashing, per docs/rules.md #12); responsive layout on mobile;
+        keyboard navigation and focus visibility.
+-   [x] Documentation reconciliation (docs/rules.md #1, Source-of-Truth
+        Rule): two stale notes in this file were corrected --- see
+        "Documentation Reconciliation" in the Documentation Change Log
+        below.
 
 ## Completed Features (Phase 5 additions)
 
@@ -329,10 +410,28 @@ Avoid unnecessary integrations during the event MVP.
     `components/projects/project-card-actions.tsx` (`"use client"`),
     so `ProjectCard` itself stays a Server Component per
     docs/architecture.md #3. No visual or behavioral change.
--   Noted, not fixed: `/dashboard/activity` and `/dashboard/settings`
+-   **Correction (Phase 8):** the note below, carried over from an
+    earlier phase, was stale — both pages exist and work.
+    ~~Noted, not fixed: `/dashboard/activity` and `/dashboard/settings`
     404 — `components/layout/nav-items.ts` has always linked to both,
-    but neither page has been built. Not in scope for Phase 6/7; flagged
-    for a future phase or explicit request.
+    but neither page has been built.~~ `app/dashboard/activity/page.tsx`
+    (full paginated, filterable cross-project activity feed) and
+    `app/dashboard/settings/page.tsx` (theme toggle, GitHub connection
+    card, Clerk `UserProfile`) are both implemented and were verified
+    working during Phase 8 testing. Leaving the incorrect note struck
+    through rather than deleted, per the Source-of-Truth Rule, so future
+    reads of this log don't rely on memory instead of the current repo
+    state.
+-   Completed Phase 8 --- Testing + Security: automated test suite
+    (37 tests) added for Ship Score logic and Zod validation; a real
+    data-hygiene bug found and fixed via those tests (blank description
+    fields stored as `""` instead of `null`); ownership-enforcement
+    pattern audited across all project/task/dev-log actions; missing
+    `.env.example` recreated; clean `next build`/`tsc`/`eslint` verified;
+    manual testing of auth, CRUD, GitHub OAuth, AI failure handling,
+    responsive layout, and keyboard accessibility completed by the
+    developer. See "Completed Features (Phase 8 additions)" above for
+    full detail.
 -   Completed Phase 7 --- Dashboard + Ship Score:
     -   `lib/utils/ship-score.ts` --- pure, DB-free Ship Score
         calculation (task completion 0--50, recent activity 0--30,
@@ -387,13 +486,36 @@ Avoid unnecessary integrations during the event MVP.
 
 ## Next Task
 
-**Begin Phase 6 --- AI Features**, per docs/phases.md.
+**Begin Phase 9 --- Deployment**, per docs/phases.md.
 
 ## Deployment Status
 
 Not deployed.
 
 ## Documentation Change Log
+
+### Documentation Reconciliation (Phase 8)
+
+Per the Source-of-Truth Rule: implementation and documentation had
+drifted apart in three places, found during Phase 8's code audit.
+Corrected here rather than silently:
+
+-   `memory.md`'s "Recent Changes" log said `/dashboard/activity` and
+    `/dashboard/settings` 404. Both pages exist and are fully built
+    (paginated activity feed with filters; settings with theme toggle,
+    GitHub connection card, and Clerk `UserProfile`). Original note left
+    struck through rather than deleted, so the correction itself is
+    traceable.
+-   `phases.md` Phase 10 listed "GitHub integration" as an unstarted
+    candidate feature. It is fully implemented (OAuth connect/callback
+    routes, PKCE, encrypted token storage) and marked `[x]`.
+-   `.env.example` was marked complete in Phase 1B but did not exist in
+    the repository — `.gitignore`'s `.env*` pattern silently excluded it
+    from every commit. Recreated with every variable the app code
+    actually reads.
+
+No architecture, schema, or scope change resulted from this — it was a
+documentation-only correction.
 
 ### Initial Documentation
 

@@ -17,9 +17,11 @@ import type { AiInsight } from "@/lib/db/schema/ai-insights";
  */
 function ProjectReportCard({
   projectId,
+  projectName,
   initialInsight,
 }: {
   projectId: string;
+  projectName?: string;
   initialInsight: AiInsight | null;
 }) {
   const initialParsed = initialInsight
@@ -86,7 +88,11 @@ function ProjectReportCard({
 
         {result ? (
           <>
-            <ProjectReportView result={result} />
+            <ProjectReportView
+              result={result}
+              projectName={projectName}
+              generatedAt={generatedAt}
+            />
             {generatedAt ? (
               <p className="font-mono text-xs text-muted-foreground">
                 Generated{" "}

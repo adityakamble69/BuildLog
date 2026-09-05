@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, bigint, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, bigint, boolean, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 /**
@@ -19,6 +19,8 @@ export const projects = pgTable(
     description: text("description"),
     // active | completed | archived
     status: varchar("status", { length: 20 }).notNull().default("active"),
+    // Public portfolio/showcase page toggle (/p/[id])
+    isPublic: boolean("is_public").notNull().default(false),
     // Free-form labels for categorizing a project (e.g. "frontend",
     // "side-project"). Stored as a Postgres text[] rather than a join
     // table — tags here are per-project labels, not a shared/reusable

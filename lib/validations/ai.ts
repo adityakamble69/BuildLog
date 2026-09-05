@@ -36,3 +36,14 @@ export const projectReportResultSchema = z.object({
 });
 
 export type ProjectReportResult = z.infer<typeof projectReportResultSchema>;
+
+/** Shape of a `learning_summary` ai_insights.content payload. */
+export const learningSummaryResultSchema = z.object({
+  overview: z.string().trim().min(1).max(800),
+  keyLearnings: z.array(z.string().trim().min(1).max(250)).max(8),
+  decisions: z.array(z.string().trim().min(1).max(250)).max(8),
+  patternsAndTips: z.array(z.string().trim().min(1).max(250)).max(8),
+});
+
+export type LearningSummaryResult = z.infer<typeof learningSummaryResultSchema>;
+

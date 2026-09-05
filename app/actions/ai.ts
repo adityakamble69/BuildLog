@@ -11,6 +11,7 @@ import { requireUserId } from "@/lib/auth/current-user";
 import { getProjectById } from "@/app/actions/projects";
 import { analyzeDevLog } from "@/lib/ai/log-analysis";
 import { generateProjectReport as runProjectReport } from "@/lib/ai/project-report";
+import { generateLearningSummary as runLearningSummary } from "@/lib/ai/learning-summary";
 import { AiServiceError } from "@/lib/ai/client";
 import {
   devLogAnalysisRequestSchema,
@@ -245,3 +246,91 @@ export async function generateProjectReport(
 
   return { success: true, data: insight };
 }
+
+/** Most recent `learning_summary` insight for a project, if any. */
+export async function getLatestLearningSummary(
+  projectId: string
+): Promise<AiInsight | null> {
+  const parsed = projectReportRequestSchema.safeParse({ projectId });
+  if (!parsed.success) return null;
+
+  const project = await getProjectById(parsed.data.projectId);
+  if (!project) return null;
+
+  const [insight] = await db
+    .select()
+    .from(aiInsights)
+    .where(
+      and(
+        eq(aiInsights.projectId, project.id),
+        eq(aiInsights.type, "learning_summary")
+      )
+    )
+    .orderBy(desc(aiInsights.createdAt))
+    .limit(1);
+
+  return insight ?? null;
+}
+
+/**
+ * Generates and stores an AI learning summary from the project's development logs.
+ */
+export async function generateLearningSummary(
+  projectId: string
+): Promise<ActionResult<AiInsight>> {
+  const parsed = projectReportRequestSchema.safeParse({ projectId });
+  if (!parsed.success) {
+    return { success: false, error: "Invalid project id." };
+  }
+
+  const project = await getProjectById(parsed.data.projectId);
+  if (!project) {
+    return { success: false, error: "Project not found." };
+  }
+
+  const logs = await db
+    .select()
+    .from(devLogs)
+    .where(eq(devLogs.projectId, project.id))
+    .orderBy(desc(devLogs.createdAt))
+    .limit(20);
+
+  if (logs.length === 0) {
+    return {
+      success: false,
+      error: "No development logs found. Add some dev logs before generating learnings.",
+    };
+  }
+
+  let result;
+  try {
+    result = await runLearningSummary({
+      projectName: project.name,
+      projectDescription: project.description,
+      logs,
+    });
+  } catch (error) {
+    return {
+      success: false,
+      error: messageForUnknownError(
+        error,
+        "Learning summary generation is temporarily unavailable. Please try again later."
+      ),
+    };
+  }
+
+  const [insight] = await db
+    .insert(aiInsights)
+    .values({
+      projectId: project.id,
+      devLogId: null,
+      type: "learning_summary",
+      content: result,
+    })
+    .returning();
+
+  revalidatePath(`/dashboard/projects/${project.id}`);
+
+  return { success: true, data: insight };
+}
+

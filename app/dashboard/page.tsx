@@ -8,6 +8,8 @@ import { ProjectList } from "@/components/projects/project-list";
 import { ActivityFeed } from "@/components/activity/activity-feed";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { LatestInsightCard } from "@/components/dashboard/latest-insight-card";
+import { StreakBadge } from "@/components/dashboard/streak-badge";
+import { ActivityHeatmap } from "@/components/analytics/activity-heatmap";
 import { getCurrentUserDisplay } from "@/lib/auth/current-user";
 import { getDashboardOverview } from "@/app/actions/dashboard";
 
@@ -49,16 +51,25 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[32px] font-semibold leading-tight tracking-tight">
-          {greetName ? `Welcome back, ${greetName}` : "Dashboard"}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Project progress, activity, and AI insights across your build.
-        </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-[32px] font-semibold leading-tight tracking-tight">
+            {greetName ? `Welcome back, ${greetName}` : "Dashboard"}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Project progress, activity, and AI insights across your build.
+          </p>
+        </div>
+        <StreakBadge streaks={overview.streaks} showDetails={true} />
       </div>
 
       <DashboardStats overview={overview} />
+
+      <ActivityHeatmap
+        timestamps={overview.activityTimestamps}
+        weeksCount={24}
+        title="Activity Heatmap"
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-3">

@@ -9,6 +9,7 @@ import {
 import { createTaskSchema, updateTaskStatusSchema } from "../lib/validations/tasks";
 import { createDevLogSchema } from "../lib/validations/dev-logs";
 import { uuidSchema, nonEmptyString } from "../lib/validations/common";
+import { learningSummaryResultSchema } from "../lib/validations/ai";
 
 const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
 
@@ -212,5 +213,29 @@ describe("createDevLogSchema", () => {
       content: "Fixed the auth bug today.",
     });
     assert.equal(result.success, true);
+  });
+});
+
+describe("learningSummaryResultSchema", () => {
+  test("accepts a well-formed learning summary payload", () => {
+    const valid = {
+      overview: "Successfully rebuilt the authentication layer using Clerk and Next.js 16.",
+      keyLearnings: ["Next.js 16 uses proxy.ts instead of middleware.ts."],
+      decisions: ["Chose Drizzle ORM over Prisma for lightweight SQL queries."],
+      patternsAndTips: ["Always validate inputs with Zod at server action boundaries."],
+    };
+    const result = learningSummaryResultSchema.safeParse(valid);
+    assert.equal(result.success, true);
+  });
+
+  test("rejects missing overview or oversized arrays", () => {
+    const invalid = {
+      overview: "",
+      keyLearnings: Array(10).fill("Learning item"),
+      decisions: [],
+      patternsAndTips: [],
+    };
+    const result = learningSummaryResultSchema.safeParse(invalid);
+    assert.equal(result.success, false);
   });
 });

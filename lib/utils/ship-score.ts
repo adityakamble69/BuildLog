@@ -151,13 +151,18 @@ export function calculateShipScore(input: ShipScoreInput): ShipScoreResult {
  */
 export function shipScoreInputFromCollections(params: {
   tasks: { status: string }[];
-  activity: { createdAt: Date | string }[];
+  activity?: { createdAt: Date | string }[];
   devLogs: unknown[];
 }): ShipScoreInput {
+  const firstDevLog = params.devLogs[0] as
+    | { createdAt: Date | string }
+    | undefined;
+
   return {
     totalTasks: params.tasks.length,
     completedTasks: params.tasks.filter((t) => t.status === "done").length,
-    lastActivityAt: params.activity[0]?.createdAt ?? null,
+    lastActivityAt:
+      params.activity?.[0]?.createdAt ?? firstDevLog?.createdAt ?? null,
     devLogCount: params.devLogs.length,
   };
 }

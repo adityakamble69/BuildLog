@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
 import { projects, type Project } from "@/lib/db/schema/projects";
+import { tasks } from "@/lib/db/schema/tasks";
+import { devLogs } from "@/lib/db/schema/dev-logs";
 import { requireUserId } from "@/lib/auth/current-user";
 import {
   createProjectSchema,
@@ -80,6 +82,7 @@ export async function createProject(
       name: parsed.data.name,
       description: parsed.data.description ?? null,
       status: parsed.data.status,
+      isPublic: parsed.data.isPublic ?? false,
       tags: parsed.data.tags,
     })
     .returning();
@@ -109,6 +112,7 @@ export async function updateProject(
       name: parsed.data.name,
       description: parsed.data.description ?? null,
       status: parsed.data.status,
+      isPublic: parsed.data.isPublic ?? false,
       tags: parsed.data.tags,
       updatedAt: new Date(),
     })
@@ -121,9 +125,57 @@ export async function updateProject(
 
   revalidatePath("/dashboard/projects");
   revalidatePath(`/dashboard/projects/${parsed.data.id}`);
+  revalidatePath(`/p/${parsed.data.id}`);
   revalidatePath("/dashboard");
 
   return { success: true, data: project };
+}
+
+/**
+ * Public project data loader. No authentication required.
+ * Only returns projects where isPublic === true.
+ */
+export async function getPublicProjectData(id: string) {
+  const parsed = projectIdSchema.safeParse({ id });
+  if (!parsed.success) return null;
+
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(and(eq(projects.id, parsed.data.id), eq(projects.isPublic, true)));
+
+  if (!project) return null;
+
+  const [projectTasks, projectDevLogs] = await Promise.all([
+    db
+      .select({
+        id: tasks.id,
+        title: tasks.title,
+        description: tasks.description,
+        status: tasks.status,
+        priority: tasks.priority,
+        dueDate: tasks.dueDate,
+        createdAt: tasks.createdAt,
+      })
+      .from(tasks)
+      .where(eq(tasks.projectId, project.id)),
+    db
+      .select({
+        id: devLogs.id,
+        content: devLogs.content,
+        createdAt: devLogs.createdAt,
+      })
+      .from(devLogs)
+      .where(eq(devLogs.projectId, project.id))
+      .orderBy(desc(devLogs.createdAt))
+      .limit(30),
+  ]);
+
+  return {
+    project,
+    tasks: projectTasks,
+    devLogs: projectDevLogs,
+  };
 }
 
 export async function deleteProject(id: string): Promise<ActionResult> {

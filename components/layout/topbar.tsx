@@ -1,6 +1,7 @@
 import { MobileSidebar } from "./mobile-sidebar";
 import { Logo } from "./logo";
 import { UserMenu } from "./user-menu";
+import { CommandPalette } from "./command-palette";
 
 function Topbar({ context }: { context?: string }) {
   return (
@@ -19,7 +20,10 @@ function Topbar({ context }: { context?: string }) {
           </>
         ) : null}
       </div>
-      <UserMenu />
+      <div className="flex items-center gap-3">
+        <CommandPalette />
+        <UserMenu />
+      </div>
     </header>
   );
 }

@@ -16,6 +16,7 @@ import {
   type ShipScoreResult,
   type ShipScoreStatus,
 } from "@/lib/utils/ship-score";
+import { calculateStreaks, type StreakStats } from "@/lib/utils/streaks";
 
 /**
  * Dashboard overview (docs/phases.md Phase 7, docs/PRD.md #7.7/#7.8).
@@ -46,6 +47,8 @@ export type DashboardOverview = {
     totalTasks: number;
     completedTasks: number;
   };
+  streaks: StreakStats;
+  activityTimestamps: string[];
   recentActivity: DashboardActivityEntry[];
   latestInsight: DashboardInsight | null;
 };
@@ -195,13 +198,28 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
           })
           .from(aiInsights)
           .innerJoin(projects, eq(projects.id, aiInsights.projectId))
+  const streakActivityDates =
+    projectIds.length === 0
+      ? []
+      : await db
+          .select({ createdAt: activityLogs.createdAt })
+          .from(activityLogs)
+          .innerJoin(projects, eq(projects.id, activityLogs.projectId))
           .where(eq(projects.userId, userId))
-          .orderBy(desc(aiInsights.createdAt))
-          .limit(1);
+          .orderBy(desc(activityLogs.createdAt))
+          .limit(100);
+
+  const streaks = calculateStreaks(
+    streakActivityDates.map((entry) => entry.createdAt)
+  );
 
   return {
     projects: projectsWithShipScore,
     stats,
+    streaks,
+    activityTimestamps: streakActivityDates.map((a) =>
+      typeof a.createdAt === "string" ? a.createdAt : a.createdAt.toISOString()
+    ),
     recentActivity,
     latestInsight: latestInsightRows[0] ?? null,
   };
