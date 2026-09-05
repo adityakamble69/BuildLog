@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, bigint, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 /**
@@ -27,6 +27,17 @@ export const projects = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::varchar[]`),
+    // Repository metadata is copied from GitHub only after the owner has
+    // explicitly linked a repository to this project. OAuth credentials
+    // remain in github_connections and never reach this table or the client.
+    githubRepositoryId: bigint("github_repository_id", { mode: "number" }),
+    githubRepositoryOwner: varchar("github_repository_owner", { length: 255 }),
+    githubRepositoryName: varchar("github_repository_name", { length: 255 }),
+    githubRepositoryUrl: text("github_repository_url"),
+    githubDefaultBranch: varchar("github_default_branch", { length: 255 }),
+    githubLastSyncedAt: timestamp("github_last_synced_at", {
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -39,6 +50,10 @@ export const projects = pgTable(
     // status-filtered dashboard/list queries.
     index("projects_user_id_idx").on(table.userId),
     index("projects_user_id_status_idx").on(table.userId, table.status),
+    index("projects_user_github_repository_idx").on(
+      table.userId,
+      table.githubRepositoryId
+    ),
   ]
 );
 

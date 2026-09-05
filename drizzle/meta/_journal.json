@@ -15,6 +15,13 @@
       "when": 1788591842218,
       "tag": "0001_peaceful_pixie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788594113257,
+      "tag": "0002_material_azazel",
+      "breakpoints": true
     }
   ]
 }

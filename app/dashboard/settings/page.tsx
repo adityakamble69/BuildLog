@@ -1,6 +1,9 @@
 import { UserProfile } from "@clerk/nextjs";
 
+import { getGitHubConnection } from "@/app/actions/github";
+import { GitHubConnectionCard } from "@/components/github/github-connection-card";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
+import { isGitHubConfigured } from "@/lib/github/service";
 
 /**
  * Settings (docs/PRD.md #10, docs/architecture.md #13).
@@ -12,7 +15,9 @@ import { ThemeToggle } from "@/components/settings/theme-toggle";
  * prebuilt UserProfile, themed to match the rest of the app the same way
  * sign-in/sign-up already do.
  */
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const connection = await getGitHubConnection();
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -25,6 +30,11 @@ export default function SettingsPage() {
       </div>
 
       <ThemeToggle />
+
+      <GitHubConnectionCard
+        connection={connection}
+        configured={isGitHubConfigured()}
+      />
 
       <UserProfile
         routing="hash"

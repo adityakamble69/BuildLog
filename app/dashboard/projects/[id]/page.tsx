@@ -14,7 +14,9 @@ import { ActivityFeed } from "@/components/activity/activity-feed";
 import { ProjectReportCard } from "@/components/ai/project-report-card";
 import { ShipScoreMeter } from "@/components/dashboard/ship-score-meter";
 import { ProjectHealthBadge } from "@/components/dashboard/project-health-badge";
+import { ProjectGitHubCard } from "@/components/github/project-github-card";
 import { getProjectById } from "@/app/actions/projects";
+import { getGitHubConnection } from "@/app/actions/github";
 import { getTasksByProject } from "@/app/actions/tasks";
 import { getDevLogsByProject } from "@/app/actions/dev-logs";
 import { getRecentActivity } from "@/app/actions/activity";
@@ -38,13 +40,14 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
-  const [tasks, devLogs, activity, logAnalyses, latestReport] =
+  const [tasks, devLogs, activity, logAnalyses, latestReport, githubConnection] =
     await Promise.all([
       getTasksByProject(project.id),
       getDevLogsByProject(project.id),
       getRecentActivity(project.id),
       getLogAnalysesByProject(project.id),
       getLatestProjectReport(project.id),
+      getGitHubConnection(),
     ]);
 
   // activity is already ordered newest-first (getRecentActivity), so the
@@ -136,6 +139,24 @@ export default async function ProjectDetailPage({
           </Card>
 
           <ProjectReportCard projectId={project.id} initialInsight={latestReport} />
+
+          <ProjectGitHubCard
+            projectId={project.id}
+            isConnected={Boolean(githubConnection)}
+            repository={
+              project.githubRepositoryId &&
+              project.githubRepositoryOwner &&
+              project.githubRepositoryName &&
+              project.githubRepositoryUrl
+                ? {
+                    id: project.githubRepositoryId,
+                    fullName: `${project.githubRepositoryOwner}/${project.githubRepositoryName}`,
+                    url: project.githubRepositoryUrl,
+                    lastSyncedAt: project.githubLastSyncedAt,
+                  }
+                : null
+            }
+          />
 
           <Card>
             <CardHeader>
