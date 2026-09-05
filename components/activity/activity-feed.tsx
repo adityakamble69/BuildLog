@@ -1,6 +1,6 @@
 import {
   CheckCircle2,
-  Github,
+  GitBranch,
   NotebookPen,
   Plus,
   RefreshCw,
@@ -17,9 +17,9 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
   task_status_changed: RefreshCw,
   task_deleted: Trash2,
   dev_log_added: NotebookPen,
-  github_repository_linked: Github,
+  github_repository_linked: GitBranch,
   github_repository_unlinked: Unlink,
-  github_commits_synced: Github,
+  github_commits_synced: GitBranch,
 };
 
 /** Known activity actions, in display order — shared with the activity filter UI. */

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Github, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GithubLogo } from "@/components/icons/github-logo";
 import type { SafeGitHubConnection } from "@/lib/github/service";
 
 function GitHubConnectionCard({
@@ -17,7 +18,7 @@ function GitHubConnectionCard({
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div className="flex flex-col gap-1.5">
           <CardTitle className="flex items-center gap-2">
-            <Github className="size-4" />
+            <GithubLogo className="size-4" />
             GitHub
           </CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -27,7 +28,7 @@ function GitHubConnectionCard({
         {configured ? (
           <Button size="sm" variant={connection ? "secondary" : "default"} asChild>
             <Link href="/api/github/connect">
-              <Github />
+              <GithubLogo />
               {connection ? "Reconnect" : "Connect GitHub"}
             </Link>
           </Button>
@@ -45,7 +46,7 @@ function GitHubConnectionCard({
                 className="size-9 rounded-full border border-border"
               />
             ) : (
-              <Github className="size-9 rounded-full border border-border p-2 text-muted-foreground" />
+              <GithubLogo className="size-9 rounded-full border border-border p-2 text-muted-foreground" />
             )}
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">@{connection.login}</p>

@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { ExternalLink, Github, Link2, RefreshCw, Unlink } from "lucide-react";
+import { ExternalLink, Link2, RefreshCw, Unlink } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+import { GithubLogo } from "@/components/icons/github-logo";
 
 import {
   linkGitHubRepository,
@@ -129,7 +131,7 @@ function ProjectGitHubCard({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Github className="size-4" />
+          <GithubLogo className="size-4" />
           GitHub repository
         </CardTitle>
       </CardHeader>
