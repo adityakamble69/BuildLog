@@ -58,13 +58,22 @@ export async function getRecentActivity(
 /**
  * Full cross-project activity feed for the dedicated /dashboard/activity
  * page. Same ownership join as getRecentActivity, just not scoped to a
- * single project and with pagination instead of a fixed small limit.
+ * single project and with pagination/filters instead of a fixed small limit.
  */
 export async function getAllActivity(
   limit = 30,
-  offset = 0
+  offset = 0,
+  filters?: { projectId?: string; action?: string }
 ): Promise<UserActivityEntry[]> {
   const userId = await requireUserId();
+
+  const conditions = [eq(projects.userId, userId)];
+  if (filters?.projectId) {
+    conditions.push(eq(activityLogs.projectId, filters.projectId));
+  }
+  if (filters?.action) {
+    conditions.push(eq(activityLogs.action, filters.action));
+  }
 
   return db
     .select({
@@ -78,7 +87,7 @@ export async function getAllActivity(
     })
     .from(activityLogs)
     .innerJoin(projects, eq(projects.id, activityLogs.projectId))
-    .where(eq(projects.userId, userId))
+    .where(and(...conditions))
     .orderBy(desc(activityLogs.createdAt))
     .limit(limit)
     .offset(offset);

@@ -17,6 +17,15 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
   dev_log_added: NotebookPen,
 };
 
+/** Known activity actions, in display order — shared with the activity filter UI. */
+export const ACTIVITY_ACTIONS = [
+  { value: "task_created", label: "Task created" },
+  { value: "task_completed", label: "Task completed" },
+  { value: "task_status_changed", label: "Task status changed" },
+  { value: "task_deleted", label: "Task deleted" },
+  { value: "dev_log_added", label: "Dev log added" },
+] as const;
+
 function describeActivity(entry: ActivityLog): string {
   const meta = (entry.metadata ?? {}) as Record<string, unknown>;
   const title = typeof meta.title === "string" ? meta.title : undefined;

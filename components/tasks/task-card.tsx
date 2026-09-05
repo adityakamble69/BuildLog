@@ -35,6 +35,10 @@ function TaskCard({ task }: { task: Task }) {
   const router = useRouter();
   const [isPending, setIsPending] = React.useState(false);
   const status = task.status as TaskStatus;
+  const isOverdue =
+    status !== "done" &&
+    task.dueDate != null &&
+    new Date(task.dueDate) < new Date(new Date().toDateString());
 
   async function handleStatusChange(next: TaskStatus) {
     if (next === status) return;
@@ -115,12 +119,20 @@ function TaskCard({ task }: { task: Task }) {
         <div className="flex items-center justify-between gap-2">
           <TaskPriorityBadge priority={task.priority as TaskPriority} />
           {task.dueDate ? (
-            <span className="flex items-center gap-1 font-mono text-xs text-muted-foreground">
+            <span
+              className={
+                "flex items-center gap-1 font-mono text-xs " +
+                (isOverdue
+                  ? "text-destructive"
+                  : "text-muted-foreground")
+              }
+            >
               <CalendarDays className="size-3.5" />
               {new Date(task.dueDate).toLocaleDateString(undefined, {
                 month: "short",
                 day: "numeric",
               })}
+              {isOverdue ? " · Overdue" : null}
             </span>
           ) : null}
         </div>

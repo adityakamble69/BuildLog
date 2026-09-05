@@ -1,5 +1,7 @@
 import { UserProfile } from "@clerk/nextjs";
 
+import { ThemeToggle } from "@/components/settings/theme-toggle";
+
 /**
  * Settings (docs/PRD.md #10, docs/architecture.md #13).
  *
@@ -21,6 +23,8 @@ export default function SettingsPage() {
           Manage your profile, email, and account security.
         </p>
       </div>
+
+      <ThemeToggle />
 
       <UserProfile
         routing="hash"
