@@ -5,24 +5,25 @@ export default function SignInPage() {
     <SignIn
       appearance={{
         elements: {
-          rootBox: "w-full max-w-sm",
-          cardBox: "w-full shadow-none",
-          card: "w-full bg-card border border-border text-card-foreground",
-          headerTitle: "text-foreground",
-          headerSubtitle: "text-muted-foreground",
+          rootBox: "w-full max-w-[400px]",
+          cardBox: "w-full shadow-2xl",
+          card: "w-full bg-white border-2 border-black rounded-xl shadow-xl p-6 sm:p-7 text-neutral-900",
+          headerTitle: "text-xl font-extrabold text-neutral-900 tracking-tight",
+          headerSubtitle: "text-xs text-neutral-600 mt-1",
           socialButtonsBlockButton:
-            "border border-border text-foreground hover:bg-accent",
-          dividerLine: "bg-border",
-          dividerText: "text-muted-foreground",
-          formFieldLabel: "text-foreground",
+            "border border-black bg-[#F5F2EB] text-neutral-900 hover:bg-black/5 font-semibold text-xs rounded-md py-2 transition-colors",
+          socialButtonsBlockButtonText: "font-semibold text-neutral-900 text-xs",
+          dividerLine: "bg-neutral-200",
+          dividerText: "text-[11px] font-mono text-neutral-400 uppercase tracking-wider",
+          formFieldLabel: "text-xs font-semibold text-neutral-800",
           formFieldInput:
-            "bg-background border border-input text-foreground focus:border-ring focus:ring-ring",
+            "bg-white border border-neutral-300 text-neutral-900 rounded-md text-sm py-2 px-3 focus:border-black focus:ring-1 focus:ring-black transition",
           formButtonPrimary:
-            "bg-primary text-primary-foreground hover:bg-primary/90",
-          footerActionText: "text-muted-foreground",
-          footerActionLink: "text-primary hover:text-primary/90",
-          identityPreviewText: "text-foreground",
-          identityPreviewEditButton: "text-primary",
+            "bg-black text-white hover:bg-neutral-800 font-semibold text-xs py-2.5 rounded-md transition-colors shadow-sm",
+          footerActionText: "text-xs text-neutral-500",
+          footerActionLink: "text-xs font-semibold text-neutral-900 hover:underline",
+          identityPreviewText: "text-xs text-neutral-800 font-medium",
+          identityPreviewEditButton: "text-xs text-neutral-600 hover:text-black",
         },
       }}
     />

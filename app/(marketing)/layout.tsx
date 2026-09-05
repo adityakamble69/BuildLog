@@ -1,5 +1,4 @@
-import { Logo } from "@/components/layout/logo";
-import { UserMenu } from "@/components/layout/user-menu";
+import * as React from "react";
 
 export default function MarketingLayout({
   children,
@@ -7,17 +6,8 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-8">
-        <Logo href="/" />
-        <UserMenu />
-      </header>
-      <main className="flex-1">{children}</main>
-      <footer className="border-t border-border px-4 py-6 text-center text-xs text-muted-foreground sm:px-8">
-        <p>
-          DevTrace --- an AI-powered development journal and project tracker.
-        </p>
-      </footer>
+    <div className="min-h-screen w-full bg-[#18181B] text-neutral-900 p-1 sm:p-2 md:p-2.5 flex flex-col items-center">
+      {children}
     </div>
   );
 }
