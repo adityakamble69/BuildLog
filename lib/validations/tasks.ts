@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { nonEmptyString, uuidSchema } from "@/lib/validations/common";
+import { nonEmptyString, optionalString, uuidSchema } from "@/lib/validations/common";
 import { TASK_STATUSES, TASK_PRIORITIES } from "@/lib/db/schema/tasks";
 
 // Per docs/database.md #8 and docs/rules.md #13.
@@ -19,12 +19,7 @@ const optionalDueDateSchema = z
 export const createTaskSchema = z.object({
   projectId: uuidSchema,
   title: nonEmptyString(200),
-  description: z
-    .string()
-    .trim()
-    .max(2000, "Description is too long.")
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
+  description: optionalString(2000, "Description is too long."),
   status: taskStatusSchema.default("todo"),
   priority: taskPrioritySchema.default("medium"),
   dueDate: optionalDueDateSchema,

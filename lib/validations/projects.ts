@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { nonEmptyString, uuidSchema } from "@/lib/validations/common";
+import { nonEmptyString, optionalString, uuidSchema } from "@/lib/validations/common";
 import { PROJECT_STATUSES } from "@/lib/db/schema/projects";
 
 // Per docs/database.md #8 and docs/rules.md #13: validate required
@@ -25,12 +25,7 @@ export const projectTagsSchema = z
 
 export const createProjectSchema = z.object({
   name: nonEmptyString(120),
-  description: z
-    .string()
-    .trim()
-    .max(2000, "Description is too long.")
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
+  description: optionalString(2000, "Description is too long."),
   status: projectStatusSchema.default("active"),
   tags: projectTagsSchema,
 });
