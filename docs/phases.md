@@ -133,15 +133,15 @@ Create the database foundation and project management.
 
 ### Tasks
 
--   [ ] Create database schema
--   [ ] Create migrations
--   [ ] Add project queries
--   [ ] Create project form
--   [ ] List projects
--   [ ] Project detail page
--   [ ] Edit project
--   [ ] Delete project
--   [ ] Enforce ownership
+-   [x] Create database schema
+-   [x] Create migrations
+-   [x] Add project queries
+-   [x] Create project form
+-   [x] List projects
+-   [x] Project detail page
+-   [x] Edit project
+-   [x] Delete project
+-   [x] Enforce ownership
 
 ### Files/Modules
 
@@ -161,9 +161,9 @@ Users can securely manage their own projects.
 
 ### Completion Criteria
 
--   [ ] CRUD works
--   [ ] Ownership is enforced
--   [ ] Database migrations work
+-   [x] CRUD works
+-   [x] Ownership is enforced
+-   [x] Database migrations work
 
 ------------------------------------------------------------------------
 
@@ -175,14 +175,14 @@ Implement the core developer activity workflow.
 
 ### Tasks
 
--   [ ] Create tasks
--   [ ] Update task status
--   [ ] Edit/delete tasks
--   [ ] Add development logs
--   [ ] Edit/delete logs
--   [ ] Display chronological logs
--   [ ] Add activity tracking
--   [ ] Calculate basic progress
+-   [x] Create tasks
+-   [x] Update task status
+-   [x] Edit/delete tasks
+-   [x] Add development logs
+-   [x] Edit/delete logs
+-   [x] Display chronological logs
+-   [x] Add activity tracking
+-   [x] Calculate basic progress
 
 ### Files/Modules
 
@@ -202,10 +202,10 @@ A user can actively track development work inside a project.
 
 ### Completion Criteria
 
--   [ ] Tasks work end-to-end
--   [ ] Logs work end-to-end
--   [ ] Project progress is accurate
--   [ ] Authorization is enforced
+-   [x] Tasks work end-to-end
+-   [x] Logs work end-to-end
+-   [x] Project progress is accurate
+-   [x] Authorization is enforced
 
 ------------------------------------------------------------------------
 

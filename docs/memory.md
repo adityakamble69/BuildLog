@@ -5,15 +5,15 @@
 
 ## Current Phase
 
-**Phase 3 --- Authentication (complete)**
+**Phase 5 --- Tasks + Development Logs (complete)**
 
 ## Current Task
 
-Begin Phase 4 --- Database + Projects.
+Begin Phase 6 --- AI Features.
 
 ## Project Status
 
-Phase 1, Phase 2, and Phase 3 complete. Ready for Phase 4.
+Phase 1 through Phase 5 complete. Ready for Phase 6.
 
 ## Completed Features
 
@@ -81,9 +81,84 @@ Phase 1 was divided into two parts for clarity:
         strings
 -   [ ] Set `DATABASE_URL` (pooler, 6543) and `DIRECT_URL` (direct,
         5432) in `.env.local`
--   [ ] Run the generated migration against Supabase
-        (`npx drizzle-kit migrate`)
--   [ ] Replace placeholder dashboard content with real project data (Phase 4+)
+-   [~] Run the generated migration against Supabase
+        (`npx drizzle-kit migrate`) --- user ran this and it returned
+        cleanly (no error output); table creation not independently
+        re-verified in this session, so leaving this open until
+        confirmed.
+-   [ ] Replace placeholder AI-insight content with real OpenAI output
+        (Phase 6)
+
+## Completed Features (Phase 5 additions)
+
+-   [x] `lib/validations/tasks.ts`, `lib/validations/dev-logs.ts`: Zod
+        schemas for task/dev-log create, update, and quick
+        status-change payloads
+-   [x] `app/actions/tasks.ts`: `getTasksByProject`, `createTask`,
+        `updateTask`, `updateTaskStatus`, `deleteTask` --- ownership is
+        inherited from the parent project (tasks have no `user_id` of
+        their own), enforced via `getProjectById()` on every mutation
+-   [x] `app/actions/dev-logs.ts`: `getDevLogsByProject`,
+        `createDevLog`, `updateDevLog`, `deleteDevLog` --- dev logs do
+        carry `user_id`, so edit/delete check it directly
+-   [x] `app/actions/activity.ts`: `recordActivity()` (internal, called
+        from the tasks/dev-logs actions after a successful mutation)
+        and `getRecentActivity()`, scoped through a join on
+        `projects.user_id`
+-   [x] Activity events recorded: `task_created`, `task_completed`
+        (status --- \> done), `task_status_changed` (other transitions),
+        `task_deleted`, `dev_log_added`. Plain field edits (title,
+        description, priority, due date) are not logged, to keep the
+        trail meaningful rather than noisy
+-   [x] `components/tasks/`: `task-board` (3-column board grouped by
+        status, per-column "add task"), `task-card` (quick "Move to"
+        status menu + edit/delete), `task-form-dialog` (create/edit,
+        modal per design.md #14), `delete-task-dialog`,
+        `task-priority-badge`
+-   [x] `components/dev-logs/`: `dev-log-form` (always-visible inline
+        composer), `dev-log-list`, `dev-log-item` (hover-to-reveal
+        inline edit/delete, delete confirmed via dialog)
+-   [x] `components/activity/activity-feed.tsx`: renders
+        `getRecentActivity()` results with a per-action icon and a
+        plain-English description built from the stored metadata
+-   [x] `components/projects/project-progress.tsx`: completed/total
+        task percentage per docs/database.md #11, with the zero-task
+        case handled explicitly (no tasks --- \> no percentage shown)
+-   [x] `app/dashboard/projects/[id]/page.tsx` rewired: progress bar,
+        task board, development log, and a recent-activity sidebar
+        replace the Phase 4 placeholders
+-   [x] Verified via `tsc --noEmit`, ESLint, and a full `next build`
+        (using a throwaway copy with dummy env vars and stubbed Google
+        Fonts, per the same sandbox limitation noted above) --- all
+        routes compile and typecheck cleanly
+
+## Completed Features (Phase 4 additions)
+
+-   [x] `lib/validations/projects.ts`: Zod schema for project
+        create/update
+-   [x] `app/actions/projects.ts`: `getProjects`, `getProjectById`,
+        `createProject`, `updateProject`, `deleteProject`, all scoped
+        by the authenticated Clerk user id
+-   [x] `components/ui/dialog.tsx`, `components/ui/select.tsx` added
+        (shadcn-style primitives that didn't exist yet, needed for the
+        project form/delete-confirmation)
+-   [x] `components/projects/`: `project-form`, `project-card`,
+        `project-list`, `project-status-badge`,
+        `delete-project-dialog`
+-   [x] Routes: `/dashboard/projects` (list), `/dashboard/projects/new`
+        (create), `/dashboard/projects/[id]` (detail),
+        `/dashboard/projects/[id]/edit`
+-   [x] Dashboard empty-state CTA wired to the new-project route; shows
+        real projects once they exist
+-   [x] Added the indexes `docs/database.md` #9 recommends but the
+        Phase 1B schema was missing (`projects(user_id)`,
+        `projects(user_id, status)`, `tasks(project_id)`,
+        `tasks(project_id, status)`, and `created_at`-ordered indexes
+        on `dev_logs`, `ai_insights`, `activity_logs`)
+-   [x] Generated `drizzle/0000_luxuriant_shiva.sql` from the schema;
+        user ran `npx drizzle-kit migrate` against it with no error
+        output (not yet independently re-verified against the Supabase
+        table list in this session)
 
 ## Completed Features (Phase 3 additions)
 
@@ -181,6 +256,12 @@ Avoid unnecessary integrations during the event MVP.
 
 ## Recent Changes
 
+-   Completed Phase 5 --- Tasks + Development Logs: task board with
+    quick status changes, development log composer/editor, activity
+    tracking, and a completed/total task progress readout on the
+    project detail page.
+-   Completed Phase 4 --- Database + Projects: full project CRUD,
+    ownership enforced server-side, migration generated and applied.
 -   Design refresh across landing, dashboard, and auth (see
     "Design Refresh" below).
 -   Completed Phase 3 --- Authentication: real sign-in/sign-up routes,
@@ -195,8 +276,7 @@ Avoid unnecessary integrations during the event MVP.
 
 ## Next Task
 
-**Begin Phase 1 --- Project Foundation** after confirming the
-documentation is accepted as the initial source of truth.
+**Begin Phase 6 --- AI Features**, per docs/phases.md.
 
 ## Deployment Status
 

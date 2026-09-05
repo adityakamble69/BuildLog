@@ -1,13 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ListChecks, NotebookPen, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { EmptyState } from "@/components/ui/empty-state";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProjectStatusBadge } from "@/components/projects/project-status-badge";
 import { DeleteProjectDialog } from "@/components/projects/delete-project-dialog";
+import { ProjectProgress } from "@/components/projects/project-progress";
+import { TaskBoard } from "@/components/tasks/task-board";
+import { DevLogList } from "@/components/dev-logs/dev-log-list";
+import { ActivityFeed } from "@/components/activity/activity-feed";
 import { getProjectById } from "@/app/actions/projects";
+import { getTasksByProject } from "@/app/actions/tasks";
+import { getDevLogsByProject } from "@/app/actions/dev-logs";
+import { getRecentActivity } from "@/app/actions/activity";
 import type { ProjectStatus } from "@/lib/db/schema/projects";
 
 export default async function ProjectDetailPage({
@@ -21,6 +28,12 @@ export default async function ProjectDetailPage({
   if (!project) {
     notFound();
   }
+
+  const [tasks, devLogs, activity] = await Promise.all([
+    getTasksByProject(project.id),
+    getDevLogsByProject(project.id),
+    getRecentActivity(project.id),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -66,20 +79,37 @@ export default async function ProjectDetailPage({
         </div>
       </div>
 
+      <ProjectProgress tasks={tasks} />
+
       <Separator />
 
-      {/* Tasks and development logs land in Phase 5 — placeholders for now. */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <EmptyState
-          icon={ListChecks}
-          title="No tasks yet"
-          description="Task tracking arrives in the next phase of BuildLog."
-        />
-        <EmptyState
-          icon={NotebookPen}
-          title="No development logs yet"
-          description="Development logs arrive in the next phase of BuildLog."
-        />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="flex flex-col gap-8">
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold">Tasks</h2>
+            <TaskBoard projectId={project.id} tasks={tasks} />
+          </section>
+
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold">Development log</h2>
+            <Card>
+              <CardContent className="pt-6">
+                <DevLogList projectId={project.id} logs={devLogs} />
+              </CardContent>
+            </Card>
+          </section>
+        </div>
+
+        <aside className="flex flex-col gap-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ActivityFeed activity={activity} />
+            </CardContent>
+          </Card>
+        </aside>
       </div>
     </div>
   );
