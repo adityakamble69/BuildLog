@@ -81,7 +81,8 @@ Phase 1 was divided into two parts for clarity:
         strings
 -   [ ] Set `DATABASE_URL` (pooler, 6543) and `DIRECT_URL` (direct,
         5432) in `.env.local`
--   [ ] Run first Drizzle migration (`drizzle-kit generate` + `migrate`)
+-   [ ] Run the generated migration against Supabase
+        (`npx drizzle-kit migrate`)
 -   [ ] Build real sign-in/sign-up routes (Phase 3)
 -   [ ] Replace placeholder dashboard content with real project data (Phase 4+)
 
@@ -199,6 +200,14 @@ Not deployed.
 -   Split connection strings: `DATABASE_URL` (pooler, runtime) and
     `DIRECT_URL` (direct, migrations only).
 -   Updated `database.md` and `architecture.md` accordingly.
+-   Fixed `drizzle-kit` not picking up `.env.local`: `drizzle-kit` is a
+    standalone CLI and does not read Next.js's `.env.local` convention
+    on its own. `drizzle.config.ts` now calls `loadEnvConfig()` from
+    `@next/env` (already bundled with `next`) to load env files the
+    same way `next dev`/`next build` do.
+-   Generated and verified the first migration
+    (`drizzle/0000_silent_black_cat.sql`) against the schema in
+    `database.md` --- all 5 tables, FKs, and cascade rules match.
 
 ## Source-of-Truth Rule
 

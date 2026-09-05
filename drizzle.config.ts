@@ -1,4 +1,11 @@
+import { loadEnvConfig } from "@next/env";
 import { defineConfig } from "drizzle-kit";
+
+// drizzle-kit is a standalone CLI — it does NOT read .env.local the
+// way `next dev`/`next build` do. Load env files the same way Next.js
+// does (.env.local, .env.development, .env, in that precedence) so
+// `npx drizzle-kit generate` works without extra tooling.
+loadEnvConfig(process.cwd());
 
 // drizzle-kit runs migrations over a direct, non-pooled connection.
 // Supabase's Transaction-mode pooler is not suitable for migration
