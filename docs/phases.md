@@ -217,13 +217,13 @@ Add useful AI analysis without expanding scope unnecessarily.
 
 ### Tasks
 
--   [ ] Configure server-side OpenAI integration
--   [ ] Create AI service
--   [ ] Implement development log analysis
--   [ ] Generate project report
--   [ ] Validate/normalize AI output
--   [ ] Store useful AI insights
--   [ ] Handle AI errors gracefully
+-   [x] Configure server-side OpenAI integration
+-   [x] Create AI service
+-   [x] Implement development log analysis
+-   [x] Generate project report
+-   [x] Validate/normalize AI output
+-   [x] Store useful AI insights
+-   [x] Handle AI errors gracefully
 
 ### Files/Modules
 
@@ -241,10 +241,10 @@ AI provides contextual analysis based on real project data.
 
 ### Completion Criteria
 
--   [ ] Log analysis works
--   [ ] Project report works
--   [ ] API key remains server-side
--   [ ] AI failures are handled
+-   [x] Log analysis works
+-   [x] Project report works
+-   [x] API key remains server-side
+-   [x] AI failures are handled
 
 ------------------------------------------------------------------------
 

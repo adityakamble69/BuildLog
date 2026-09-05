@@ -16,9 +16,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { updateDevLog, deleteDevLog } from "@/app/actions/dev-logs";
+import { LogAnalysisPanel } from "@/components/ai/log-analysis-panel";
 import type { DevLog } from "@/lib/db/schema/dev-logs";
+import type { AiInsight } from "@/lib/db/schema/ai-insights";
 
-function DevLogItem({ log }: { log: DevLog }) {
+function DevLogItem({
+  log,
+  initialInsight = null,
+}: {
+  log: DevLog;
+  initialInsight?: AiInsight | null;
+}) {
   const router = useRouter();
   const [isEditing, setIsEditing] = React.useState(false);
   const [content, setContent] = React.useState(log.content);
@@ -163,6 +171,10 @@ function DevLogItem({ log }: { log: DevLog }) {
           {log.content}
         </p>
       )}
+
+      {!isEditing ? (
+        <LogAnalysisPanel devLogId={log.id} initialInsight={initialInsight} />
+      ) : null}
     </div>
   );
 }

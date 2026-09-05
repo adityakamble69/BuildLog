@@ -5,15 +5,15 @@
 
 ## Current Phase
 
-**Phase 5 --- Tasks + Development Logs (complete)**
+**Phase 6 --- AI Features (complete)**
 
 ## Current Task
 
-Begin Phase 6 --- AI Features.
+Begin Phase 7 --- Dashboard + Ship Score.
 
 ## Project Status
 
-Phase 1 through Phase 5 complete. Ready for Phase 6.
+Phase 1 through Phase 6 complete. Ready for Phase 7.
 
 ## Completed Features
 
@@ -86,8 +86,10 @@ Phase 1 was divided into two parts for clarity:
         cleanly (no error output); table creation not independently
         re-verified in this session, so leaving this open until
         confirmed.
--   [ ] Replace placeholder AI-insight content with real OpenAI output
+-   [x] Replace placeholder AI-insight content with real OpenAI output
         (Phase 6)
+-   [ ] Set a real `OPENAI_API_KEY` in `.env.local` to exercise AI
+        features locally (calls fail gracefully without one)
 
 ## Completed Features (Phase 5 additions)
 
@@ -131,6 +133,59 @@ Phase 1 was divided into two parts for clarity:
         (using a throwaway copy with dummy env vars and stubbed Google
         Fonts, per the same sandbox limitation noted above) --- all
         routes compile and typecheck cleanly
+
+## Completed Features (Phase 6 additions)
+
+-   [x] `lib/ai/client.ts`: server-only OpenAI wrapper
+        (`callAiForJson()`) — reads `OPENAI_API_KEY`, calls the Chat
+        Completions API with `response_format: json_object`, and throws
+        a single `AiServiceError` for every failure mode (missing key,
+        network failure, non-2xx status, empty/unparsable content). Uses
+        raw `fetch` rather than the `openai` SDK per docs/rules.md #17
+        (no dependency added).
+-   [x] `lib/ai/log-analysis.ts` / `lib/ai/project-report.ts`: prompt
+        construction + calls into `callAiForJson()`, each returning a
+        `zod`-validated, normalized result (`lib/validations/ai.ts`).
+        Both throw `AiServiceError` on a schema mismatch instead of
+        storing/returning unvalidated model output (docs/PRD.md #8).
+-   [x] `lib/validations/ai.ts`: `devLogAnalysisRequestSchema`,
+        `projectReportRequestSchema` (request-side), and
+        `logAnalysisResultSchema` / `projectReportResultSchema`
+        (AI-output-side) validation.
+-   [x] `app/actions/ai.ts`: `generateLogAnalysis`, `getLogAnalysis`,
+        `getLogAnalysesByProject` (one query for a whole log list, avoids
+        N+1), `generateProjectReport`, `getLatestProjectReport`. Every
+        action re-derives identity via `requireUserId()` and re-checks
+        ownership (dev log → its `user_id`; project report → 
+        `getProjectById()`) before touching the AI service or the
+        database. AI failures are caught and turned into
+        `{ success: false, error }` — they never throw past this
+        boundary and never leave a misleading/partial insight row.
+-   [x] `ai_insights` rows: `type: "log_analysis"` (scoped to one
+        `dev_log_id`) and `type: "report"` (project-level,
+        `dev_log_id: null`) — matches the schema already created in
+        Phase 1B/`docs/database.md`; no schema change needed for Phase 6.
+-   [x] `components/ai/`: `AiInsightBadge` (the one consistent AI
+        indicator per docs/design.md #25), `LogAnalysisView` /
+        `LogAnalysisPanel` (on-demand "Analyze with AI" button per dev
+        log, embedded in `DevLogItem`), `ProjectReportView` /
+        `ProjectReportCard` (on-demand "Generate report" card in the
+        project detail sidebar). Analysis/report generation is
+        deliberately on-demand rather than automatic, per docs/rules.md
+        #18 (avoid expensive AI calls on every page load).
+-   [x] `components/dev-logs/dev-log-item.tsx` and `dev-log-list.tsx`
+        updated to accept an optional pre-fetched insight
+        (`getLogAnalysesByProject()` is called once per project-detail
+        page load, not once per log entry).
+-   [x] `app/dashboard/projects/[id]/page.tsx`: wired
+        `getLogAnalysesByProject()` and `getLatestProjectReport()`
+        alongside the existing Phase 5 data fetches, and added
+        `ProjectReportCard` to the project detail sidebar above Recent
+        Activity.
+-   [x] Verified with `tsc --noEmit` against a throwaway
+        `node_modules`/type-stub setup (same sandbox network limitation
+        as prior phases — no live OpenAI or Supabase calls were made);
+        no new dependency was added, so `package.json` is unchanged.
 
 ## Completed Features (Phase 4 additions)
 

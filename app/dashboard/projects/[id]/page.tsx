@@ -11,10 +11,12 @@ import { ProjectProgress } from "@/components/projects/project-progress";
 import { TaskBoard } from "@/components/tasks/task-board";
 import { DevLogList } from "@/components/dev-logs/dev-log-list";
 import { ActivityFeed } from "@/components/activity/activity-feed";
+import { ProjectReportCard } from "@/components/ai/project-report-card";
 import { getProjectById } from "@/app/actions/projects";
 import { getTasksByProject } from "@/app/actions/tasks";
 import { getDevLogsByProject } from "@/app/actions/dev-logs";
 import { getRecentActivity } from "@/app/actions/activity";
+import { getLogAnalysesByProject, getLatestProjectReport } from "@/app/actions/ai";
 import type { ProjectStatus } from "@/lib/db/schema/projects";
 
 export default async function ProjectDetailPage({
@@ -29,11 +31,14 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
-  const [tasks, devLogs, activity] = await Promise.all([
-    getTasksByProject(project.id),
-    getDevLogsByProject(project.id),
-    getRecentActivity(project.id),
-  ]);
+  const [tasks, devLogs, activity, logAnalyses, latestReport] =
+    await Promise.all([
+      getTasksByProject(project.id),
+      getDevLogsByProject(project.id),
+      getRecentActivity(project.id),
+      getLogAnalysesByProject(project.id),
+      getLatestProjectReport(project.id),
+    ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,13 +99,19 @@ export default async function ProjectDetailPage({
             <h2 className="text-lg font-semibold">Development log</h2>
             <Card>
               <CardContent className="pt-6">
-                <DevLogList projectId={project.id} logs={devLogs} />
+                <DevLogList
+                  projectId={project.id}
+                  logs={devLogs}
+                  analysesByDevLogId={logAnalyses}
+                />
               </CardContent>
             </Card>
           </section>
         </div>
 
-        <aside className="flex flex-col gap-3">
+        <aside className="flex flex-col gap-6">
+          <ProjectReportCard projectId={project.id} initialInsight={latestReport} />
+
           <Card>
             <CardHeader>
               <CardTitle>Recent activity</CardTitle>
